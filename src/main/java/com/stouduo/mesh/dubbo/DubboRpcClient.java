@@ -1,26 +1,30 @@
 package com.stouduo.mesh.dubbo;
 
 import com.stouduo.mesh.dubbo.model.*;
-import com.stouduo.mesh.registry.IRegistry;
+import com.stouduo.mesh.rpc.client.RpcClient;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-public class RpcClient {
-    private Logger logger = LoggerFactory.getLogger(RpcClient.class);
+public class DubboRpcClient implements RpcClient {
+    private Logger logger = LoggerFactory.getLogger(DubboRpcClient.class);
 
     private ConnecManager connectManager;
 
-    public RpcClient(IRegistry registry) {
+    public DubboRpcClient() {
         this.connectManager = new ConnecManager();
     }
 
-    public Object invoke(String interfaceName, String method, String parameterTypesString, String parameter) throws Exception {
-
+    public Object invoke(ServerRequest serverRequest) throws Exception {
+        String interfaceName = serverRequest.queryParam("interface").get();
+        String method = serverRequest.queryParam("method").get();
+        String parameterTypesString = serverRequest.queryParam("parameterTypesString").get();
+        String parameter = serverRequest.queryParam("parameter").get();
         Channel channel = connectManager.getChannel();
 
         RpcInvocation invocation = new RpcInvocation();
