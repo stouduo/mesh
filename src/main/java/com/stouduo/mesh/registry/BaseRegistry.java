@@ -13,7 +13,7 @@ public class BaseRegistry {
     @Value("${agent.registry.rootPath:'stouduo'}")
     protected String rootPath;
 
-    @Value("${agent.registry.serverUrl}")
+    @Value("${agent.registry.serverUrl:'127.0.0.1:3333'}")
     protected String serverUrl;
 
     @Value("${agent.type:'default}")
@@ -22,10 +22,10 @@ public class BaseRegistry {
     @Value("${server.port:8888}")
     protected int serverPort;
 
-    @Value("${agent.serverName")
+    @Value("${agent.serverName:'com.stouduo.agentmesh'")
     protected String serverName;
 
-    @Value("${agent.serverCapacity}")
+    @Value("${agent.serverCapacity:'1'}")
     protected String serverCapacity;
 
     protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();

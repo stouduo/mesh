@@ -40,6 +40,11 @@ public class Endpoint {
                 Objects.equals(host, endpoint.host);
     }
 
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(host, port, capacity);
+    }
 
     public int getCapacity() {
 

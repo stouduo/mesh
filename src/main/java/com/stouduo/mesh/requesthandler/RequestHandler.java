@@ -14,6 +14,11 @@ public class RequestHandler {
     private InvokeHandler invokeHandler;
 
     public Mono<ServerResponse> invoke(ServerRequest request) {
-        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(Mono.just(invokeHandler.invoke(request)), Object.class);
+        try {
+            return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(Mono.just(invokeHandler.invoke(request)), Object.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

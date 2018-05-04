@@ -2,10 +2,10 @@ package com.stouduo.mesh.dubbo;
 
 import com.stouduo.mesh.dubbo.model.*;
 import com.stouduo.mesh.rpc.client.RpcClient;
+import com.stouduo.mesh.rpc.client.RpcRequest;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -20,11 +20,11 @@ public class DubboRpcClient implements RpcClient {
         this.connectManager = new ConnecManager();
     }
 
-    public Object invoke(ServerRequest serverRequest) throws Exception {
-        String interfaceName = serverRequest.queryParam("interface").get();
-        String method = serverRequest.queryParam("method").get();
-        String parameterTypesString = serverRequest.queryParam("parameterTypesString").get();
-        String parameter = serverRequest.queryParam("parameter").get();
+    public Object invoke(RpcRequest rpcRequest) throws Exception {
+        String interfaceName = rpcRequest.getParameterStr("interface");
+        String method = rpcRequest.getParameterStr("method");
+        String parameterTypesString = rpcRequest.getParameterStr("parameterTypesString");
+        String parameter = rpcRequest.getParameterStr("parameter");
         Channel channel = connectManager.getChannel();
 
         RpcInvocation invocation = new RpcInvocation();
@@ -51,7 +51,7 @@ public class DubboRpcClient implements RpcClient {
 
         Object result = null;
         try {
-            result = future.get();
+            result = future;
         } catch (Exception e) {
             e.printStackTrace();
         }

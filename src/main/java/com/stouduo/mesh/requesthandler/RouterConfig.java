@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -16,6 +17,7 @@ public class RouterConfig {
 
     @Bean
     public RouterFunction<ServerResponse> timerRouter() {
-        return route(GET("/"), requestHandler::invoke);
+        return route(GET("/"), requestHandler::invoke)
+                .andRoute(POST("/"), requestHandler::invoke);
     }
 }

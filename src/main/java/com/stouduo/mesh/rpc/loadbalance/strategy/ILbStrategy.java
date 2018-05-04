@@ -1,4 +1,4 @@
-package com.stouduo.mesh.rpc.loadbalance;
+package com.stouduo.mesh.rpc.loadbalance.strategy;
 
 import com.stouduo.mesh.util.Endpoint;
 

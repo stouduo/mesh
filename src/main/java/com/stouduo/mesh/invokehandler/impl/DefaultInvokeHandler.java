@@ -1,5 +1,6 @@
-package com.stouduo.mesh.invokehandler;
+package com.stouduo.mesh.invokehandler.impl;
 
+import com.stouduo.mesh.invokehandler.InvokeHandler;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 public class DefaultInvokeHandler implements InvokeHandler {
