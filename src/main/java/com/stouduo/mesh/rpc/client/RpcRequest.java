@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class RpcRequest {
     private static AtomicLong atomicLong = new AtomicLong();
     private long id;
-    private Map<String, Object> parameters;
+    private Map<String, String> parameters;
     private String requsetUrl;
 
     public RpcRequest(String requsetUrl) {
@@ -26,7 +26,7 @@ public class RpcRequest {
         return this;
     }
 
-    public RpcRequest setParameters(Map<String, Object> parameters) {
+    public RpcRequest setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
         return this;
     }
@@ -36,7 +36,7 @@ public class RpcRequest {
         return id;
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
     }
 

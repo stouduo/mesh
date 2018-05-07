@@ -1,6 +1,6 @@
 package com.stouduo.mesh.rpc.client;
 
 
-public interface RpcClient {
+public interface ConsumerRpcClient {
     Object invoke(RpcRequest request) throws Exception;
 }

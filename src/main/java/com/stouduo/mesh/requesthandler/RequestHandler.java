@@ -15,7 +15,7 @@ public class RequestHandler {
 
     public Mono<ServerResponse> invoke(ServerRequest request) {
         try {
-            return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(Mono.just(invokeHandler.invoke(request)), Object.class);
+            return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(invokeHandler.invoke(request), Object.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

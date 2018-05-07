@@ -1,7 +1,7 @@
 package com.stouduo.mesh.dubbo;
 
 import com.stouduo.mesh.dubbo.model.*;
-import com.stouduo.mesh.rpc.client.RpcClient;
+import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
 import com.stouduo.mesh.rpc.client.RpcRequest;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -11,12 +11,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-public class DubboRpcClient implements RpcClient {
-    private Logger logger = LoggerFactory.getLogger(DubboRpcClient.class);
+public class DubboConsumerRpcClient implements ConsumerRpcClient {
+    private Logger logger = LoggerFactory.getLogger(DubboConsumerRpcClient.class);
 
     private ConnecManager connectManager;
 
-    public DubboRpcClient() {
+    public DubboConsumerRpcClient() {
         this.connectManager = new ConnecManager();
     }
 
@@ -48,13 +48,6 @@ public class DubboRpcClient implements RpcClient {
         RpcRequestHolder.put(String.valueOf(request.getId()), future);
 
         channel.writeAndFlush(request);
-
-        Object result = null;
-        try {
-            result = future;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+        return future.get();
     }
 }

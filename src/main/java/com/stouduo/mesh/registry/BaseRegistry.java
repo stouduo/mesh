@@ -10,22 +10,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class BaseRegistry {
-    @Value("${agent.registry.rootPath:'stouduo'}")
+    @Value("${agent.registry.rootPath:stouduo}")
     protected String rootPath;
 
-    @Value("${agent.registry.serverUrl:'127.0.0.1:3333'}")
+    @Value("${agent.registry.serverUrl:http://localhost:2379}")
     protected String serverUrl;
 
-    @Value("${agent.type:'default}")
+    @Value("${type:default}")
     protected String serverType;
 
     @Value("${server.port:8888}")
-    protected int serverPort;
+    protected String serverPort;
 
-    @Value("${agent.serverName:'com.stouduo.agentmesh'")
+    @Value("${agent.serverName:com.stouduo.agentmesh}")
     protected String serverName;
 
-    @Value("${agent.serverCapacity:'1'}")
+    @Value("${agent.serverCapacity:1}")
     protected String serverCapacity;
 
     protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
@@ -70,11 +70,11 @@ public class BaseRegistry {
         this.serverType = serverType;
     }
 
-    public int getServerPort() {
+    public String getServerPort() {
         return serverPort;
     }
 
-    public void setServerPort(int serverPort) {
+    public void setServerPort(String serverPort) {
         this.serverPort = serverPort;
     }
 

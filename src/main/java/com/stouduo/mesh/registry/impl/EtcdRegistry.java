@@ -7,6 +7,7 @@ import com.coreos.jetcd.Watch.Watcher;
 import com.coreos.jetcd.data.ByteSequence;
 import com.coreos.jetcd.data.KeyValue;
 import com.coreos.jetcd.kv.GetResponse;
+import com.coreos.jetcd.kv.PutResponse;
 import com.coreos.jetcd.options.GetOption;
 import com.coreos.jetcd.options.PutOption;
 import com.coreos.jetcd.options.WatchOption;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +36,15 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     private String registryKey;
     private final Long revsion = 10l;
 
+    @PostConstruct
+    private void init() {
+        register();
+    }
+
     @Override
     public void register() {
         if (this.lease == null) {
-            logger.info(">>>>>开始注册服务，服务类型为:" + serverType);
+            logger.info(">>>>>开始注册服务，服务类型为：" + serverType);
             Client client = Client.builder().endpoints(serverUrl).build();
             this.lease = client.getLeaseClient();
             this.kv = client.getKVClient();
@@ -51,6 +58,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                     watch(client);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error(e.getMessage());
             }
             logger.info(">>>>>服务注册完成！");
@@ -64,8 +72,8 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                     Lease.KeepAliveListener listener = null;
                     try {
                         listener = lease.keepAlive(leaseId);
-                        listener.listen();
                         logger.info("心跳:" + leaseId + "; lease:" + Long.toHexString(leaseId));
+                        listener.listen();
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     } finally {
@@ -77,6 +85,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     private void watch(Client client) {
         final String findKey = MessageFormat.format("/{0}/{1}", rootPath, this.serverName);
+        logger.info("开始监听服务【" + findKey + "】");
         ByteSequence bsFindKey = ByteSequence.fromString(registryKey);
         final Watcher watcher = client.getWatchClient().watch(
                 bsFindKey, WatchOption.newBuilder().withRevision(revsion).withPrefix(bsFindKey).build()
@@ -84,24 +93,18 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
         Executors.newSingleThreadExecutor().submit(
                 () -> {
                     try {
-                        boolean keepListen = true;
-                        while (keepListen) {
-                            WatchResponse response = watcher.listen();
-                            for (WatchEvent event : response.getEvents()) {
-                                switch (event.getEventType()) {
-                                    case PUT:
-                                        providers.put(findKey, findServers(findKey));
-                                        break;
-                                    case DELETE:
-                                        providers.put(findKey, findServers(findKey));
-                                        keepListen = false;
-                                        break;
-                                    case UNRECOGNIZED:
-                                        break;
-                                }
+                        for (WatchEvent event : watcher.listen().getEvents()) {
+                            logger.info("listening...");
+                            switch (event.getEventType()) {
+                                case PUT:
+                                case DELETE:
+                                    providers.put(findKey, findServers(findKey));
+                                    break;
+                                case UNRECOGNIZED:
+                                    break;
                             }
-                            if (watcher != null) watcher.close();
                         }
+                        if (watcher != null) watcher.close();
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     } finally {
@@ -114,12 +117,15 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     private void register2Etcd() throws Exception {
         kv.put(ByteSequence.fromString(registryKey), ByteSequence.fromString(serverCapacity), PutOption.newBuilder().withLeaseId(leaseId).build()).get();
-        logger.info("注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity);
+        logger.info(kv.get(ByteSequence.fromString(registryKey)).get().getCount() != 0 ? ("注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity) : "未知原因，注册失败。");
     }
 
     private List<Endpoint> findServers(String findKey) throws Exception {
         ByteSequence key = ByteSequence.fromString(findKey);
         GetResponse response = kv.get(key, GetOption.newBuilder().withPrefix(key).build()).get();
+        logger.info(response.getCount() + "--111");
+        response = kv.get(ByteSequence.fromString(registryKey)).get();
+        logger.info(response.getCount() + "--222");
 
         List<Endpoint> endpoints = new ArrayList<>();
         for (KeyValue kv : response.getKvs()) {
@@ -136,6 +142,12 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     }
 
     @Override
+    public void serverDown() throws Exception {
+        kv.delete(ByteSequence.fromString(registryKey)).get();
+        logger.info("服务【" + registryKey + "】已下线！");
+    }
+
+    @Override
     public List<Endpoint> find(String serviceName) throws Exception {
         String findKey = MessageFormat.format("/{0}/{1}", rootPath, StringUtils.isEmpty(serviceName) ? this.serverName : serviceName);
         List<Endpoint> endpoints = providers.get(findKey);
@@ -146,12 +158,6 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
         endpoints = findServers(findKey);
         providers.put(findKey, endpoints);
         return endpoints;
-    }
-
-    @Override
-    public void serverDown() throws Exception {
-        kv.delete(ByteSequence.fromString(registryKey)).get();
-        logger.info("服务【" + registryKey + "】已下线！");
     }
 
     @Override

@@ -1,23 +1,25 @@
 package com.stouduo.mesh;
 
-import com.stouduo.mesh.dubbo.DubboRpcClient;
+import com.stouduo.mesh.dubbo.DubboConsumerRpcClient;
 import com.stouduo.mesh.invokehandler.impl.ConsumerInvokeHandler;
 import com.stouduo.mesh.invokehandler.impl.DefaultInvokeHandler;
 import com.stouduo.mesh.invokehandler.InvokeHandler;
 import com.stouduo.mesh.invokehandler.impl.ProviderInvokeHandler;
 import com.stouduo.mesh.registry.IRegistry;
 import com.stouduo.mesh.registry.impl.EtcdRegistry;
-import com.stouduo.mesh.rpc.client.RpcClient;
-import com.stouduo.mesh.rpc.client.impl.AgentRpcClient;
+import com.stouduo.mesh.rpc.client.AgentRpcClient;
+import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
+import com.stouduo.mesh.rpc.client.impl.DefaultAgentRpcClient;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.DefaultLbStrategy;
-import com.stouduo.mesh.rpc.loadbalance.strategy.impl.PollLbStrategy;
-import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightPollLbStrategy;
+import com.stouduo.mesh.rpc.loadbalance.strategy.impl.RoundLbStrategy;
+import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRoundLbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRandomLbStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import sun.management.Agent;
 
 @Configuration
 public class AgentConfiguration {
@@ -46,16 +48,16 @@ public class AgentConfiguration {
         return new EtcdRegistry();
     }
 
-    @Bean("providerRpc")
-    @ConditionalOnMissingBean(name = "providerRpc")
-    public RpcClient dubboRpcClient() {
-        return new DubboRpcClient();
+    @Bean
+    @ConditionalOnMissingBean(ConsumerRpcClient.class)
+    public ConsumerRpcClient dubboRpcClient() {
+        return new DubboConsumerRpcClient();
     }
 
-    @Bean("agentRpc")
-    @ConditionalOnMissingBean(name = "agentRpc")
-    public RpcClient agentRpcClient() {
-        return new AgentRpcClient();
+    @Bean
+    @ConditionalOnMissingBean(AgentRpcClient.class)
+    public AgentRpcClient agentRpcClient() {
+        return new DefaultAgentRpcClient();
     }
 
     @Bean
@@ -65,15 +67,15 @@ public class AgentConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightPoll")
-    public ILbStrategy weightPollLbStrategy() {
-        return new WeightPollLbStrategy();
+    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightRound")
+    public ILbStrategy weightRoundLbStrategy() {
+        return new WeightRoundLbStrategy();
     }
 
     @Bean
-    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "poll")
-    public ILbStrategy pollLbStrategy() {
-        return new PollLbStrategy();
+    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "round")
+    public ILbStrategy roundLbStrategy() {
+        return new RoundLbStrategy();
     }
 
     @Bean

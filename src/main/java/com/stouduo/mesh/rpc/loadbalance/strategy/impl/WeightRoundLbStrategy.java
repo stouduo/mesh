@@ -2,7 +2,7 @@ package com.stouduo.mesh.rpc.loadbalance.strategy.impl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class WeightPollLbStrategy extends WeightLbStrategy {
+public class WeightRoundLbStrategy extends WeightLbStrategy {
     private static AtomicInteger index = new AtomicInteger(0);
 
     @Override

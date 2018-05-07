@@ -6,7 +6,7 @@ import com.stouduo.mesh.util.Endpoint;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PollLbStrategy implements ILbStrategy {
+public class RoundLbStrategy implements ILbStrategy {
     @Override
     public Endpoint lbStrategy(List<Endpoint> endpoints) {
         return endpoints.get(getIndex(endpoints.size()));
