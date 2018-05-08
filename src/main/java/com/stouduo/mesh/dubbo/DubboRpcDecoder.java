@@ -15,19 +15,20 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
-       list.add(decode2(byteBuf));
+        list.add(decode2(byteBuf));
     }
 
-    private Object decode2(ByteBuf byteBuf){
+    private Object decode2(ByteBuf byteBuf) {
         byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
 
-        byte[] subArray = Arrays.copyOfRange(data,HEADER_LENGTH + 1, data.length);
+        byte[] subArray = Arrays.copyOfRange(data, HEADER_LENGTH + 1, data.length);
 
         String s = new String(subArray);
 
-        byte[] requestIdBytes = Arrays.copyOfRange(data,4,12);
-        long requestId = Bytes.bytes2long(requestIdBytes,0);
+        System.err.println(s);
+        byte[] requestIdBytes = Arrays.copyOfRange(data, 4, 12);
+        long requestId = Bytes.bytes2long(requestIdBytes, 0);
 
         RpcResponse response = new RpcResponse();
         response.setRequestId(String.valueOf(requestId));

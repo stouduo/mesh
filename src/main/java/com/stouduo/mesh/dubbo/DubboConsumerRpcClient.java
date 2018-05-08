@@ -1,5 +1,6 @@
 package com.stouduo.mesh.dubbo;
 
+import com.alibaba.fastjson.JSON;
 import com.stouduo.mesh.dubbo.model.*;
 import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
 import com.stouduo.mesh.rpc.client.RpcRequest;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 public class DubboConsumerRpcClient implements ConsumerRpcClient {
     private Logger logger = LoggerFactory.getLogger(DubboConsumerRpcClient.class);
@@ -54,6 +56,6 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
         RpcRequestHolder.put(String.valueOf(request.getId()), future);
 
         channel.writeAndFlush(request);
-        return new String((byte[]) future.get(), "UTF-8").trim();
+        return JSON.parseObject((byte[]) future.get(1, TimeUnit.MINUTES), Integer.class);
     }
 }

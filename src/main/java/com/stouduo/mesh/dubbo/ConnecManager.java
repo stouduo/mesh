@@ -1,5 +1,6 @@
 package com.stouduo.mesh.dubbo;
 
+import com.stouduo.mesh.util.IpHelper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -36,7 +37,7 @@ public class ConnecManager {
         if (null == channel) {
             synchronized (lock) {
                 if (null == channel) {
-                    channel = bootstrap.connect("127.0.0.1", this.port).sync().channel();
+                    channel = bootstrap.connect(IpHelper.getHostIp(), this.port).sync().channel();
                 }
             }
         }
@@ -53,5 +54,6 @@ public class ConnecManager {
                 .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .channel(NioSocketChannel.class)
                 .handler(new RpcClientInitializer());
+
     }
 }
