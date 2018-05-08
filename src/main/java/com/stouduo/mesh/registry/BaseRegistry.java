@@ -19,13 +19,13 @@ public class BaseRegistry {
     @Value("${type:default}")
     protected String serverType;
 
-    @Value("${server.port:8888}")
+    @Value("${server.port:30000}")
     protected String serverPort;
 
-    @Value("${agent.serverName:com.stouduo.agentmesh}")
+    @Value("${agent.provider.serverName:com.stouduo.agentmesh}")
     protected String serverName;
 
-    @Value("${agent.serverCapacity:1}")
+    @Value("${agent.provider.serverCapacity:1}")
     protected String serverCapacity;
 
     protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();

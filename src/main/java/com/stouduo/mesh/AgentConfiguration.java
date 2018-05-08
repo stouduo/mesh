@@ -1,5 +1,6 @@
 package com.stouduo.mesh;
 
+import com.stouduo.mesh.dubbo.ConnecManager;
 import com.stouduo.mesh.dubbo.DubboConsumerRpcClient;
 import com.stouduo.mesh.invokehandler.impl.ConsumerInvokeHandler;
 import com.stouduo.mesh.invokehandler.impl.DefaultInvokeHandler;
@@ -15,6 +16,7 @@ import com.stouduo.mesh.rpc.loadbalance.strategy.impl.DefaultLbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.RoundLbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRoundLbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRandomLbStrategy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -50,8 +52,8 @@ public class AgentConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ConsumerRpcClient.class)
-    public ConsumerRpcClient dubboRpcClient() {
-        return new DubboConsumerRpcClient();
+    public ConsumerRpcClient dubboRpcClient(@Value("${dubbo.protocol.port:20880}") int dubboProtoPort) {
+        return new DubboConsumerRpcClient().setConnectManager(new ConnecManager(dubboProtoPort));
     }
 
     @Bean

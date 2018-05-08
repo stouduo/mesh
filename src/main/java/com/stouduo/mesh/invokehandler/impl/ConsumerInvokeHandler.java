@@ -28,8 +28,8 @@ public class ConsumerInvokeHandler implements InvokeHandler {
 
     @Override
     public Mono invoke(ServerRequest request) throws Exception {
-        Map<String, String> params = request.body(BodyExtractors.toFormData()).toFuture().get().toSingleValueMap();
+        Map<String, String> params = request.formData().toFuture().get().toSingleValueMap();
         Endpoint endpoint = iLbStrategy.lbStrategy(iRegistry.find(params.get("interface")));
-        return agentRpcClient.invoke(new RpcRequest(endpoint.getHost() + ":" + endpoint.getPort()).setParameters(params));
+        return agentRpcClient.invoke(new RpcRequest(endpoint.getHost() + ":" + endpoint.getPort()).setMultiParameters(request.formData().toFuture().get()));
     }
 }

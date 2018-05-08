@@ -34,7 +34,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     private KV kv;
     private long leaseId;
     private String registryKey;
-    private final Long revsion = 10l;
+    private final Long revision = 10l;
 
     @PostConstruct
     private void init() {
@@ -49,11 +49,11 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
             this.lease = client.getLeaseClient();
             this.kv = client.getKVClient();
             try {
-                this.registryKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, IpHelper.getHostIp(), serverPort);
                 this.leaseId = this.lease.grant(30).get().getID();
                 keepAlive();
                 // 如果是provider，去etcd注册服务并监听
                 if (isProvider()) {
+                    this.registryKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, IpHelper.getHostIp(), serverPort);
                     register2Etcd();
                     watch(client);
                 }
@@ -71,9 +71,11 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                 () -> {
                     Lease.KeepAliveListener listener = null;
                     try {
-                        listener = lease.keepAlive(leaseId);
-                        logger.info("心跳:" + leaseId + "; lease:" + Long.toHexString(leaseId));
-                        listener.listen();
+                        while (true) {
+                            Thread.sleep(2000);
+                            listener = lease.keepAlive(leaseId);
+                            listener.listen();
+                        }
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     } finally {
@@ -85,26 +87,28 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     private void watch(Client client) {
         final String findKey = MessageFormat.format("/{0}/{1}", rootPath, this.serverName);
-        logger.info("开始监听服务【" + findKey + "】");
+        logger.info(">>>>>开始监听服务【" + findKey + "】");
         ByteSequence bsFindKey = ByteSequence.fromString(registryKey);
         final Watcher watcher = client.getWatchClient().watch(
-                bsFindKey, WatchOption.newBuilder().withRevision(revsion).withPrefix(bsFindKey).build()
+                bsFindKey, WatchOption.newBuilder().withRevision(revision).withPrefix(bsFindKey).build()
         );
         Executors.newSingleThreadExecutor().submit(
                 () -> {
                     try {
-                        for (WatchEvent event : watcher.listen().getEvents()) {
-                            logger.info("listening...");
-                            switch (event.getEventType()) {
-                                case PUT:
-                                case DELETE:
-                                    providers.put(findKey, findServers(findKey));
-                                    break;
-                                case UNRECOGNIZED:
-                                    break;
+                        while (true) {
+                            Thread.sleep(2000);
+                            for (WatchEvent event : watcher.listen().getEvents()) {
+                                switch (event.getEventType()) {
+                                    case PUT:
+                                    case DELETE:
+                                        logger.info(">>>>>监听到事件【" + event.getEventType().toString() + "】");
+                                        providers.put(findKey, findServers(findKey));
+                                        break;
+                                    case UNRECOGNIZED:
+                                        break;
+                                }
                             }
                         }
-                        if (watcher != null) watcher.close();
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     } finally {
@@ -117,22 +121,19 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     private void register2Etcd() throws Exception {
         kv.put(ByteSequence.fromString(registryKey), ByteSequence.fromString(serverCapacity), PutOption.newBuilder().withLeaseId(leaseId).build()).get();
-        logger.info(kv.get(ByteSequence.fromString(registryKey)).get().getCount() != 0 ? ("注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity) : "未知原因，注册失败。");
+        logger.info(kv.get(ByteSequence.fromString(registryKey)).get().getCount() != 0 ? (">>>>>注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity) : ">>>>>未知原因，注册失败。");
     }
 
     private List<Endpoint> findServers(String findKey) throws Exception {
         ByteSequence key = ByteSequence.fromString(findKey);
         GetResponse response = kv.get(key, GetOption.newBuilder().withPrefix(key).build()).get();
-        logger.info(response.getCount() + "--111");
-        response = kv.get(ByteSequence.fromString(registryKey)).get();
-        logger.info(response.getCount() + "--222");
-
         List<Endpoint> endpoints = new ArrayList<>();
+        logger.info(">>>>>服务【" + findKey + "】数量为：" + response.getCount());
         for (KeyValue kv : response.getKvs()) {
             String k = kv.getKey().toStringUtf8();
             String v = kv.getValue().toStringUtf8();
             String endpointStr = k.substring(k.lastIndexOf("/") + 1, k.length());
-
+            logger.info(">>>服务地址：" + endpointStr);
             String host = endpointStr.split(":")[0];
             int port = Integer.valueOf(endpointStr.split(":")[1]);
 
@@ -144,7 +145,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     @Override
     public void serverDown() throws Exception {
         kv.delete(ByteSequence.fromString(registryKey)).get();
-        logger.info("服务【" + registryKey + "】已下线！");
+        logger.info(">>>>>服务【" + registryKey + "】已下线！");
     }
 
     @Override
@@ -167,7 +168,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                 ", kv=" + kv +
                 ", leaseId=" + leaseId +
                 ", registryKey='" + registryKey + '\'' +
-                ", revsion=" + revsion +
+                ", revision=" + revision +
                 ", rootPath='" + rootPath + '\'' +
                 ", serverUrl='" + serverUrl + '\'' +
                 ", serverType='" + serverType + '\'' +

@@ -11,19 +11,20 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class ConnecManager {
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
 
-    private Bootstrap bootstrap;
+    private volatile Bootstrap bootstrap;
 
-    private Channel channel;
+    private volatile Channel channel;
     private Object lock = new Object();
+    private int port;
 
-    public ConnecManager() {
+    public ConnecManager(int port) {
+        this.port = port;
     }
 
     public Channel getChannel() throws Exception {
         if (null != channel) {
             return channel;
         }
-
         if (null == bootstrap) {
             synchronized (lock) {
                 if (null == bootstrap) {
@@ -33,10 +34,9 @@ public class ConnecManager {
         }
 
         if (null == channel) {
-            synchronized (lock){
-                if (null == channel){
-                    int port = Integer.valueOf(System.getProperty("dubbo.protocol.port"));
-                    channel = bootstrap.connect("127.0.0.1", port).sync().channel();
+            synchronized (lock) {
+                if (null == channel) {
+                    channel = bootstrap.connect("127.0.0.1", this.port).sync().channel();
                 }
             }
         }

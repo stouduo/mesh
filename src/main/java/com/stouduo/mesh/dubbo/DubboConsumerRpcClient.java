@@ -4,8 +4,10 @@ import com.stouduo.mesh.dubbo.model.*;
 import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
 import com.stouduo.mesh.rpc.client.RpcRequest;
 import io.netty.channel.Channel;
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -17,7 +19,11 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
     private ConnecManager connectManager;
 
     public DubboConsumerRpcClient() {
-        this.connectManager = new ConnecManager();
+    }
+
+    public DubboConsumerRpcClient setConnectManager(ConnecManager connectManager) {
+        this.connectManager = connectManager;
+        return this;
     }
 
     public Object invoke(RpcRequest rpcRequest) throws Exception {
@@ -48,6 +54,6 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
         RpcRequestHolder.put(String.valueOf(request.getId()), future);
 
         channel.writeAndFlush(request);
-        return future.get();
+        return new String((byte[]) future.get(), "UTF-8").trim();
     }
 }
