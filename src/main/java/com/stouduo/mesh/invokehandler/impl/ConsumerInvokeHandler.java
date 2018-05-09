@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.ConnectException;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ConsumerInvokeHandler implements InvokeHandler {
@@ -38,8 +39,23 @@ public class ConsumerInvokeHandler implements InvokeHandler {
         return request.formData().flatMap(map -> {
             try {
                 Map<String, String> params = map.toSingleValueMap();
-                Endpoint endpoint = iLbStrategy.lbStrategy(iRegistry.find(params.get(serverParamName)));
-                return doInvoke(endpoint, map).retry(retry, (e) -> e instanceof ConnectTimeoutException).onErrorResume(ConnectException.class, o -> null);
+                final Endpoint endpoint = iLbStrategy.lbStrategy(iRegistry.find(params.get(serverParamName)));
+                return doInvoke(endpoint, map).retry(retry, (e) -> e instanceof ConnectTimeoutException).onErrorResume(ConnectException.class, o -> {
+                    try {
+                        if (((ConnectException) o).getMessage().contains("Connection refused")) {
+                            if (endpoint != null) {
+                                iRegistry.serverDown(endpoint);
+                                Thread.sleep(10);
+                                Endpoint recallEndPoint = iLbStrategy.lbStrategy(iRegistry.find(params.get(serverParamName)));
+                                if (endpoint.equals(recallEndPoint)) return Mono.just("抱歉，已没有可用的服务！");
+                                return doInvoke(recallEndPoint, map);
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                    return Mono.empty();
+                });
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
@@ -52,4 +68,5 @@ public class ConsumerInvokeHandler implements InvokeHandler {
         logger.info(">>>>>调用服务地址为：" + remoteUrl);
         return agentRpcClient.invoke(new RpcRequest(remoteUrl).setMultiParameters(map));
     }
+
 }

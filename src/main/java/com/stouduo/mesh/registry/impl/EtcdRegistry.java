@@ -144,7 +144,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     @Override
     public void serverDown(Endpoint endpoint) throws Exception {
-        String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort());
+        String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort()+"");
         kv.delete(ByteSequence.fromString(serverRegKey)).get();
         this.serverDown.compareAndSet(false, true);
         logger.debug(">>>>>服务【" + serverRegKey + "】已下线！");
