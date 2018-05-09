@@ -63,12 +63,6 @@ public class AgentConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(ILbStrategy.class)
-    public ILbStrategy defaultLbStrategy() {
-        return new DefaultLbStrategy();
-    }
-
-    @Bean
     @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightRound")
     public ILbStrategy weightRoundLbStrategy() {
         return new WeightRoundLbStrategy();
@@ -84,5 +78,11 @@ public class AgentConfiguration {
     @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightRandom")
     public ILbStrategy weightRandomLbStrategy() {
         return new WeightRandomLbStrategy();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ILbStrategy.class)
+    public ILbStrategy defaultLbStrategy() {
+        return new DefaultLbStrategy();
     }
 }

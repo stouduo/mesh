@@ -12,7 +12,14 @@ public class ProviderInvokeHandler implements InvokeHandler {
     private ConsumerRpcClient consumerRpcClient;
 
     @Override
-    public Mono invoke(ServerRequest request) throws Exception {
-        return Mono.justOrEmpty(consumerRpcClient.invoke(new RpcRequest().setParameters(request.formData().toFuture().get().toSingleValueMap())));
+    public Mono invoke(ServerRequest request) {
+        return request.formData().flatMap(map -> {
+            try {
+                return Mono.justOrEmpty(consumerRpcClient.invoke(new RpcRequest().setParameters(map.toSingleValueMap())));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
     }
 }
