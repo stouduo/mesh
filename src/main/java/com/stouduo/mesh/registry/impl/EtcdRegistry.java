@@ -46,28 +46,31 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     }
 
     @Override
-    public void register() {
+    public void register(String serviceName, Endpoint endpoint) throws Exception {
         if (this.lease == null) {
             logger.debug(">>>>>开始注册服务，服务类型为：" + serverType);
             Client client = Client.builder().endpoints(serverUrl).build();
             this.lease = client.getLeaseClient();
             this.kv = client.getKVClient();
-            try {
-                this.leaseId = this.lease.grant(30).get().getID();
-                this.serverDown.compareAndSet(true, false);
-                keepAlive();
-                // 如果是provider，去etcd注册服务
-                if (isProvider()) {
-                    this.registryKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, IpHelper.getHostIp(), serverPort);
-                    register2Etcd();
-                } else
-                    //监听
-                    watch(client);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error(e.getMessage());
-            }
+            this.leaseId = this.lease.grant(30).get().getID();
+            this.serverDown.compareAndSet(true, false);
+            keepAlive();
+            // 如果是provider，去etcd注册服务
+            if (isProvider()) {
+                this.registryKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serviceName, IpHelper.getHostIp(), port + "");
+                register2Etcd();
+            } else
+                //监听
+                watch(client);
             logger.debug(">>>>>服务注册完成！");
+        }
+    }
+
+    public void register() {
+        try {
+            register(serverName, new Endpoint(IpHelper.getHostIp(), serverPort, serverCapacity));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
     }
 
@@ -144,11 +147,12 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     @Override
     public void serverDown(Endpoint endpoint) throws Exception {
-        String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort()+"");
+        String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort() + "");
         kv.delete(ByteSequence.fromString(serverRegKey)).get();
         this.serverDown.compareAndSet(false, true);
         logger.debug(">>>>>服务【" + serverRegKey + "】已下线！");
     }
+
 
     @Override
     public List<Endpoint> find(String serviceName) throws Exception {

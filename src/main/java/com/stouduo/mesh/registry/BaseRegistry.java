@@ -1,6 +1,8 @@
 package com.stouduo.mesh.registry;
 
 import com.stouduo.mesh.util.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +22,18 @@ public class BaseRegistry implements AutoCloseable {
     protected String serverType;
 
     @Value("${server.port:30000}")
-    protected String serverPort;
+    protected int serverPort;
 
     @Value("${agent.provider.serverName:com.stouduo.agentmesh}")
     protected String serverName;
 
     @Value("${agent.provider.serverCapacity:1}")
     protected String serverCapacity;
+
+
+    public static Map<String, List<Endpoint>> getProviders() {
+        return providers;
+    }
 
     protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
 
@@ -70,11 +77,11 @@ public class BaseRegistry implements AutoCloseable {
         this.serverType = serverType;
     }
 
-    public String getServerPort() {
+    public int getServerPort() {
         return serverPort;
     }
 
-    public void setServerPort(String serverPort) {
+    public void setServerPort(int serverPort) {
         this.serverPort = serverPort;
     }
 
@@ -87,4 +94,5 @@ public class BaseRegistry implements AutoCloseable {
         this.providers.clear();
         this.providers = null;
     }
+
 }
