@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class BaseRegistry {
+public class BaseRegistry implements AutoCloseable {
     @Value("${agent.registry.rootPath:stouduo}")
     protected String rootPath;
 
@@ -80,5 +80,11 @@ public class BaseRegistry {
 
     public boolean isProvider() {
         return "provider".equalsIgnoreCase(this.serverType);
+    }
+
+    @Override
+    public void close() throws Exception {
+        this.providers.clear();
+        this.providers = null;
     }
 }
