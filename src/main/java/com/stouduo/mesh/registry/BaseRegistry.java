@@ -1,6 +1,7 @@
 package com.stouduo.mesh.registry;
 
 import com.stouduo.mesh.util.Endpoint;
+import com.stouduo.mesh.util.IpHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,20 +29,17 @@ public class BaseRegistry implements AutoCloseable {
     protected String serverName;
 
     @Value("${agent.provider.serverCapacity:1}")
-    protected String serverCapacity;
+    protected int serverCapacity;
 
-
-    public static Map<String, List<Endpoint>> getProviders() {
-        return providers;
-    }
+    private Endpoint currentEndpoint;
 
     protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
 
-    public String getServerCapacity() {
+    public int getServerCapacity() {
         return serverCapacity;
     }
 
-    public void setServerCapacity(String serverCapacity) {
+    public void setServerCapacity(int serverCapacity) {
         this.serverCapacity = serverCapacity;
     }
 
@@ -87,6 +85,17 @@ public class BaseRegistry implements AutoCloseable {
 
     public boolean isProvider() {
         return "provider".equalsIgnoreCase(this.serverType);
+    }
+
+    public Endpoint currentEndpoint() {
+        if (currentEndpoint == null) {
+            try {
+                currentEndpoint = new Endpoint(IpHelper.getHostIp(), serverPort, serverCapacity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return currentEndpoint;
     }
 
     @Override

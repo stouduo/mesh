@@ -3,9 +3,14 @@ package com.stouduo.mesh.util;
 import java.util.Objects;
 
 public class Endpoint {
-    private final String host;
-    private final int port;
-    private final int capacity;
+    private String host;
+    private int port;
+    private int capacity;
+
+    public Endpoint(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
 
     public Endpoint(String host, int port, int capacity) {
         this.host = host;

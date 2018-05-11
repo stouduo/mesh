@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.stouduo.mesh.dubbo.model.*;
 import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
 import com.stouduo.mesh.rpc.client.RpcRequest;
+import com.stouduo.mesh.util.Endpoint;
+import com.stouduo.mesh.util.IpHelper;
 import io.netty.channel.Channel;
 import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
@@ -20,12 +22,15 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
 
     private ConnecManager connectManager;
 
-    public DubboConsumerRpcClient() {
-    }
+    private Endpoint remoteUri;
 
-    public DubboConsumerRpcClient setConnectManager(ConnecManager connectManager) {
-        this.connectManager = connectManager;
-        return this;
+    public DubboConsumerRpcClient(int host) {
+        try {
+            this.remoteUri = new Endpoint(IpHelper.getHostIp(), host);
+            this.connectManager = new ConnecManager(remoteUri);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Object invoke(RpcRequest rpcRequest) throws Exception {

@@ -12,13 +12,13 @@ public class RpcRequest {
     private static AtomicLong atomicLong = new AtomicLong();
     private long id;
     private Map<String, String> parameters;
-    private String remoteUrl;
+    private String remoteUri;
     private MultiValueMap<String, String> multiParameters;
 
-    public RpcRequest(String remoteUrl) {
+    public RpcRequest(String remoteUri) {
         this.id = atomicLong.getAndIncrement();
         this.parameters = new HashMap<>();
-        this.remoteUrl = remoteUrl;
+        this.remoteUri = remoteUri;
         this.multiParameters = new LinkedMultiValueMap<>();
     }
 
@@ -63,8 +63,8 @@ public class RpcRequest {
         return this.parameters.get(name);
     }
 
-    public String getRemoteUrl() {
-        return this.remoteUrl;
+    public String getRemoteUri() {
+        return this.remoteUri;
     }
 
 }

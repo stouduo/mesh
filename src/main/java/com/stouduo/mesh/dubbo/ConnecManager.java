@@ -1,5 +1,6 @@
 package com.stouduo.mesh.dubbo;
 
+import com.stouduo.mesh.util.Endpoint;
 import com.stouduo.mesh.util.IpHelper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.UnpooledByteBufAllocator;
@@ -16,10 +17,10 @@ public class ConnecManager {
 
     private volatile Channel channel;
     private Object lock = new Object();
-    private int port;
+    private Endpoint connectUri;
 
-    public ConnecManager(int port) {
-        this.port = port;
+    public ConnecManager(Endpoint connectUri) {
+        this.connectUri = connectUri;
     }
 
     public Channel getChannel() throws Exception {
@@ -37,7 +38,7 @@ public class ConnecManager {
         if (null == channel) {
             synchronized (lock) {
                 if (null == channel) {
-                    channel = bootstrap.connect(IpHelper.getHostIp(), this.port).sync().channel();
+                    channel = bootstrap.connect(connectUri.getHost(), connectUri.getPort()).sync().channel();
                 }
             }
         }
