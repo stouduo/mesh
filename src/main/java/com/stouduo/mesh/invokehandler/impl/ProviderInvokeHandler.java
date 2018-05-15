@@ -19,7 +19,7 @@ public class ProviderInvokeHandler implements InvokeHandler {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return Mono.empty();
         });
     }
 }

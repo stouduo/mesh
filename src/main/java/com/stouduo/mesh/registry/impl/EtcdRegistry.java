@@ -100,7 +100,6 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                 () -> {
                     try {
                         while (!serverDown.get()) {
-                            Thread.sleep(5);
                             for (WatchEvent event : watcher.listen().getEvents()) {
                                 logger.debug(">>>>>监听到事件【" + event.getEventType().toString() + "】");
                                 switch (event.getEventType()) {

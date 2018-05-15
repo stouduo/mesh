@@ -45,7 +45,7 @@ public class ConsumerInvokeHandler implements InvokeHandler {
                         if (((ConnectException) o).getMessage().contains("Connection refused")) {
                             if (endpoint != null) {
                                 iRegistry.serverDown(endpoint);
-                                Thread.sleep(10);
+                                Thread.sleep(1);
                                 Endpoint recallEndPoint = iLbStrategy.lbStrategy(iRegistry.find(params.get(serverParamName)));
                                 if (endpoint.equals(recallEndPoint)) return Mono.just("抱歉，已没有可用的服务！");
                                 return doInvoke(recallEndPoint, map);
@@ -59,13 +59,13 @@ public class ConsumerInvokeHandler implements InvokeHandler {
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
-            return null;
+            return Mono.empty();
         });
     }
 
     private Mono doInvoke(Endpoint endpoint, MultiValueMap<String, String> map) throws Exception {
         String remoteUrl = endpoint.getHost() + ":" + endpoint.getPort();
-        logger.info(">>>>>调用服务地址为：" + remoteUrl);
+        logger.debug(">>>>>调用服务地址为：" + remoteUrl);
         return agentRpcClient.invoke(new RpcRequest(remoteUrl).setMultiParameters(map));
     }
 

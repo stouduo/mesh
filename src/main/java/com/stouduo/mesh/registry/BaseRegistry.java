@@ -13,7 +13,7 @@ public class BaseRegistry implements AutoCloseable {
     @Value("${agent.registry.rootPath:stouduo}")
     protected String rootPath;
 
-    @Value("${agent.registry.serverUrl:http://localhost:2379}")
+    @Value("${etcd.url?:agent.registry.serverUrl:http://localhost:2379}")
     protected String serverUrl;
 
     @Value("${type:default}")

@@ -50,7 +50,7 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
         request.setTwoWay(true);
         request.setData(invocation);
 
-        logger.info("requestId=" + request.getId());
+        logger.debug("requestId=" + request.getId());
 
         RpcFuture future = new RpcFuture();
         RpcRequestHolder.put(String.valueOf(request.getId()), future);
