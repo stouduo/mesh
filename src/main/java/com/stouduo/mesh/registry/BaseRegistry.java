@@ -13,7 +13,7 @@ public class BaseRegistry implements AutoCloseable {
     @Value("${agent.registry.rootPath:stouduo}")
     protected String rootPath;
 
-    @Value("${etcd.url?:agent.registry.serverUrl:http://localhost:2379}")
+    @Value("${etcd.url:http://localhost:2379}")
     protected String serverUrl;
 
     @Value("${type:default}")
@@ -22,7 +22,7 @@ public class BaseRegistry implements AutoCloseable {
     @Value("${server.port:30000}")
     protected String serverPort;
 
-    @Value("${agent.provider.serverName:com.stouduo.agentmesh}")
+    @Value("${agent.provider.serverName:com.alibaba.dubbo.performance.demo.provider.IHelloService}")
     protected String serverName;
 
     @Value("${agent.provider.serverCapacity:1}")
