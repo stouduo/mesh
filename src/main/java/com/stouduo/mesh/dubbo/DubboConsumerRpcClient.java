@@ -56,6 +56,6 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
         RpcRequestHolder.put(String.valueOf(request.getId()), future);
 
         channel.writeAndFlush(request);
-        return JSON.parseObject((byte[]) future.get(1, TimeUnit.MINUTES), Integer.class);
+        return JSON.parseObject((byte[]) future.get(), Integer.class);
     }
 }
