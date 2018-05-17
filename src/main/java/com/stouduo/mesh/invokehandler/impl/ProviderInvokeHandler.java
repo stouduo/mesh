@@ -15,7 +15,7 @@ public class ProviderInvokeHandler implements InvokeHandler {
     public Mono invoke(ServerRequest request) {
         return request.formData().flatMap(map -> {
             try {
-                return Mono.justOrEmpty(consumerRpcClient.invoke(new RpcRequest().setParameters(map.toSingleValueMap())));
+                return Mono.just(consumerRpcClient.invoke(new RpcRequest().setParameters(map.toSingleValueMap())));
             } catch (Exception e) {
                 e.printStackTrace();
             }

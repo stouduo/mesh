@@ -1,10 +1,13 @@
 package com.stouduo.mesh.dubbo.model;
 
+import com.alibaba.fastjson.JSON;
+
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class RpcFuture implements Future<Object> {
+public class RpcFuture extends CompletableFuture<Object> implements Future<Object> {
     private CountDownLatch latch = new CountDownLatch(1);
 
     private RpcResponse response;
@@ -26,11 +29,11 @@ public class RpcFuture implements Future<Object> {
 
     @Override
     public Object get() throws InterruptedException {
-         //boolean b = latch.await(100, TimeUnit.MICROSECONDS);
+        //boolean b = latch.await(100, TimeUnit.MICROSECONDS);
         latch.await();
         try {
-            return response.getBytes();
-        }catch (Exception e){
+            return JSON.parseObject(response.getBytes(), Integer.class);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "Error";
@@ -38,11 +41,11 @@ public class RpcFuture implements Future<Object> {
 
     @Override
     public Object get(long timeout, TimeUnit unit) throws InterruptedException {
-        boolean b = latch.await(timeout,unit);
-        return response.getBytes();
+        boolean b = latch.await(timeout, unit);
+        return JSON.parseObject(response.getBytes(), Integer.class);
     }
 
-    public void done(RpcResponse response){
+    public void done(RpcResponse response) {
         this.response = response;
         latch.countDown();
     }
