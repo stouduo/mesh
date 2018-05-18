@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.concurrent.Future;
 
 public class CustomConsumerRpcClient implements ConsumerRpcClient {
     private Logger logger = LoggerFactory.getLogger(CustomConsumerRpcClient.class);
@@ -22,7 +23,7 @@ public class CustomConsumerRpcClient implements ConsumerRpcClient {
     }
 
 
-    public Object invoke(RpcRequest rpcRequest) throws Exception {
+    public Mono invoke(RpcRequest rpcRequest) throws Exception {
         String interfaceName = rpcRequest.getParameterStr("interface");
         String method = rpcRequest.getParameterStr("method");
         String parameterTypesString = rpcRequest.getParameterStr("parameterTypesString");
@@ -51,6 +52,6 @@ public class CustomConsumerRpcClient implements ConsumerRpcClient {
 
         channel.writeAndFlush(request);
         channelPoolManager.release(channel);
-        return Mono.fromFuture(future);
+        return  Mono.fromFuture(future);
     }
 }

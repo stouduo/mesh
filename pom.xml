@@ -59,11 +59,19 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>io.netty</groupId>-->
-            <!--<artifactId>netty-all</artifactId>-->
-            <!--<version>4.1.23.Final</version>-->
-        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-runtime -->
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.protostuff/protostuff-core -->
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -94,14 +102,14 @@
             <artifactId>jetcd-core</artifactId>
             <version>0.0.2</version>
             <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>io.netty</groupId>-->
-                    <!--<artifactId>netty-codec-http2</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>io.netty</groupId>-->
-                    <!--<artifactId>netty-handler-proxy</artifactId>-->
-                <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>io.netty</groupId>-->
+            <!--<artifactId>netty-codec-http2</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>io.netty</groupId>-->
+            <!--<artifactId>netty-handler-proxy</artifactId>-->
+            <!--</exclusion>-->
             <!--</exclusions>-->
         </dependency>
     </dependencies>
