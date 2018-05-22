@@ -1,5 +1,7 @@
 package com.stouduo.mesh.dubbo.model;
 
+import java.util.Arrays;
+
 public class RpcResponse {
 
     private String requestId;
@@ -19,5 +21,13 @@ public class RpcResponse {
 
     public void setBytes(byte[] bytes) {
         this.bytes = bytes;
+    }
+
+    @Override
+    public String toString() {
+        return "RpcResponse{" +
+                "requestId='" + requestId + '\'' +
+                ", bytes=" + Arrays.toString(bytes) +
+                '}';
     }
 }

@@ -1,52 +1,46 @@
 package com.stouduo.mesh.server;
 
-import com.stouduo.mesh.rpc.client.RpcRequest;
-import com.stouduo.mesh.util.IpHelper;
+import com.stouduo.mesh.rpc.RpcRequest;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.pool.FixedChannelPool;
+import io.netty.channel.pool.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
-public class AgentClient implements AutoCloseable {
-    private static Logger logger = LoggerFactory.getLogger(AgentClient.class);
-    private final NioEventLoopGroup workerGroup;
-    private static FixedChannelPool channelPool;
-    private final int maxChannels;
-    private final int serverPort;
+public abstract class AgentClient implements AutoCloseable {
+    protected static Logger logger = LoggerFactory.getLogger(AgentClient.class);
+    protected NioEventLoopGroup workerGroup;
+    protected InetSocketAddress inetSocketAddress;
+    protected ChannelPoolMap<InetSocketAddress, SimpleChannelPool> poolMap;
     @Autowired
-    private ClientChannelPoolHandler clientChannelPoolHandler;
+    protected ChannelPoolHandler clientChannelPoolHandler;
 
-    public AgentClient(int serverPort, int maxChannels) {
-        this.maxChannels = maxChannels;
-        this.serverPort = serverPort;
-        this.workerGroup = new NioEventLoopGroup();
-    }
+    protected int maxChannels;
 
     @PostConstruct
     public void start() {
-        try {
-            channelPool = new FixedChannelPool(new Bootstrap().group(workerGroup)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_KEEPALIVE, true)
-                    .option(ChannelOption.TCP_NODELAY, true)
-                    .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
-                    .remoteAddress(IpHelper.getHostIp(), serverPort), clientChannelPoolHandler, maxChannels);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Bootstrap bootstrap = new Bootstrap().group(workerGroup)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
+        poolMap = new AbstractChannelPoolMap<InetSocketAddress, SimpleChannelPool>() {
+            @Override
+            protected SimpleChannelPool newPool(InetSocketAddress key) {
+                return new FixedChannelPool(bootstrap.remoteAddress(key), clientChannelPoolHandler, maxChannels);
+            }
+        };
     }
 
-    public Object invoke(RpcRequest rpcRequest) {
-
-        return null;
-    }
+    public abstract Object invoke(RpcRequest rpcRequest);
 
     @Override
     public void close() {

@@ -2,13 +2,12 @@ package com.stouduo.mesh.server.netty.provider;
 
 import com.stouduo.mesh.dubbo.DubboRpcDecoder;
 import com.stouduo.mesh.dubbo.DubboRpcEncoder;
-import com.stouduo.mesh.server.ClientChannelPoolHandler;
+import com.stouduo.mesh.server.ClientInboundHandler;
 import io.netty.channel.Channel;
+import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ProviderClientChannelPoolHandler implements ClientChannelPoolHandler {
+public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
     @Override
     public void channelReleased(Channel channel) throws Exception {
 
@@ -27,6 +26,6 @@ public class ProviderClientChannelPoolHandler implements ClientChannelPoolHandle
         channel.pipeline()
                 .addLast(new DubboRpcEncoder())
                 .addLast(new DubboRpcDecoder())
-                .addLast(new ProviderClientInboundHandler());
+                .addLast(new ClientInboundHandler());
     }
 }

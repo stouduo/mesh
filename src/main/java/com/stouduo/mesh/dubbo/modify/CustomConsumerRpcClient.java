@@ -1,8 +1,7 @@
 package com.stouduo.mesh.dubbo.modify;
 
 import com.stouduo.mesh.dubbo.model.*;
-import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
-import com.stouduo.mesh.rpc.client.RpcRequest;
+import com.stouduo.mesh.rpc.RpcRequest;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +10,8 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.concurrent.Future;
 
-public class CustomConsumerRpcClient implements ConsumerRpcClient {
+public class CustomConsumerRpcClient  {
     private Logger logger = LoggerFactory.getLogger(CustomConsumerRpcClient.class);
 
     private ChannelPoolManager channelPoolManager;

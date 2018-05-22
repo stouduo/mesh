@@ -1,14 +1,13 @@
 package com.stouduo.mesh.server.netty.consumer;
 
-import com.stouduo.mesh.rpc.client.RpcRequest;
-import com.stouduo.mesh.server.ClientChannelPoolHandler;
+import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.server.ClientInboundHandler;
 import com.stouduo.mesh.server.netty.util.CustomByteToMessageCodec;
 import io.netty.channel.Channel;
+import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ConsumerClientChannelPoolHandler implements ClientChannelPoolHandler {
+public class ConsumerClientChannelPoolHandler implements ChannelPoolHandler {
     @Override
     public void channelReleased(Channel channel) throws Exception {
 
@@ -26,6 +25,6 @@ public class ConsumerClientChannelPoolHandler implements ClientChannelPoolHandle
         channel.config().setTcpNoDelay(true);
         channel.pipeline()
                 .addLast(new CustomByteToMessageCodec(RpcRequest.class))
-                .addLast(new ConsumerClientInboundHandler());
+                .addLast(new ClientInboundHandler());
     }
 }

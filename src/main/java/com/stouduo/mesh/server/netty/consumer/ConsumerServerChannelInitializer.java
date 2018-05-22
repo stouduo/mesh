@@ -1,16 +1,16 @@
 package com.stouduo.mesh.server.netty.consumer;
 
-import com.stouduo.mesh.server.ServerChannelInitializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Component
-public class ConsumerServerChannelInitializer extends ServerChannelInitializer {
+public class ConsumerServerChannelInitializer extends ChannelInitializer {
+    @Autowired
+    private ConsumerServerInboundHandler consumerServerInboundHandler;
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
@@ -19,6 +19,6 @@ public class ConsumerServerChannelInitializer extends ServerChannelInitializer {
                 .addLast(new HttpObjectAggregator(65536))
                 .addLast(new HttpContentCompressor())
                 .addLast(new HttpResponseEncoder())
-                .addLast(new ConsumerServerInboundHandler());
+                .addLast(consumerServerInboundHandler);
     }
 }

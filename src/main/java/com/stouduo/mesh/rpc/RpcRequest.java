@@ -1,29 +1,31 @@
-package com.stouduo.mesh.rpc.client;
+package com.stouduo.mesh.rpc;
 
 
+import com.stouduo.mesh.util.Endpoint;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class RpcRequest {
+public class RpcRequest implements Serializable {
     private static AtomicLong atomicLong = new AtomicLong();
     private long id;
     private Map<String, String> parameters;
-    private String remoteUrl;
+    private Endpoint remoteServer;
     private MultiValueMap<String, String> multiParameters;
 
-    public RpcRequest(String remoteUrl) {
+    public RpcRequest(Endpoint remoteServer) {
         this.id = atomicLong.getAndIncrement();
         this.parameters = new HashMap<>();
-        this.remoteUrl = remoteUrl;
+        this.remoteServer = remoteServer;
         this.multiParameters = new LinkedMultiValueMap<>();
     }
 
     public RpcRequest() {
-        this("");
+        this(null);
     }
 
     public RpcRequest setAttribute(String name, String value) {
@@ -46,7 +48,6 @@ public class RpcRequest {
         return this;
     }
 
-
     public long getId() {
         return id;
     }
@@ -63,8 +64,11 @@ public class RpcRequest {
         return this.parameters.get(name);
     }
 
-    public String getRemoteUrl() {
-        return this.remoteUrl;
+    public Endpoint getRemoteServer() {
+        return remoteServer;
     }
 
+    public void setRemoteServer(Endpoint remoteServer) {
+        this.remoteServer = remoteServer;
+    }
 }

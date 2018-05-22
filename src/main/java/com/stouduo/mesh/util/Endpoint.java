@@ -1,8 +1,9 @@
 package com.stouduo.mesh.util;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Endpoint {
+public class Endpoint implements Serializable {
     private final String host;
     private final int port;
     private final int capacity;

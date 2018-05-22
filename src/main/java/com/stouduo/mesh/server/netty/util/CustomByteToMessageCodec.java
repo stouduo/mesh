@@ -1,20 +1,24 @@
 package com.stouduo.mesh.server.netty.util;
 
 import com.stouduo.mesh.dubbo.model.Bytes;
-import com.stouduo.mesh.rpc.client.RpcRequest;
+import com.stouduo.mesh.rpc.RpcRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-public class CustomByteToMessageCodec extends ByteToMessageCodec {
+public class CustomByteToMessageCodec<T extends Serializable> extends ByteToMessageCodec {
+    private static Logger logger = LoggerFactory.getLogger(CustomByteToMessageCodec.class);
     private final static short PROTOCOL = (short) 0xabcd;
     private final static int HEADER_LENGTH = 16;
-    private Class<?> clazz;
+    private Class<T> clazz;
 
-    public CustomByteToMessageCodec(Class<?> clazz) {
+    public CustomByteToMessageCodec(Class<T> clazz) {
         this.clazz = clazz;
     }
 
@@ -31,7 +35,6 @@ public class CustomByteToMessageCodec extends ByteToMessageCodec {
      * @return
      */
     private Object decode2(ByteBuf byteBuf) {
-
         int savedReaderIndex = byteBuf.readerIndex();
         int readable = byteBuf.readableBytes();
 
@@ -52,23 +55,28 @@ public class CustomByteToMessageCodec extends ByteToMessageCodec {
         byte[] data = new byte[tt];
         byteBuf.readBytes(data);
 
-        byte[] body = Arrays.copyOfRange(data, HEADER_LENGTH + 1, data.length);
-        return ProtoSerializeUtil.deserialize(body, clazz);
+        byte[] body = Arrays.copyOfRange(data, HEADER_LENGTH, data.length);
+        return SerializeUtil.deserialize(body, clazz);
     }
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, Object o, ByteBuf byteBuf) throws Exception {
-        byte[] header = new byte[HEADER_LENGTH];
-        Bytes.short2bytes(PROTOCOL, header);
-        if (o instanceof RpcRequest) {
-            Bytes.long2bytes(((RpcRequest) o).getId(), header, 4);
-        }
-        byte[] body = ProtoSerializeUtil.serialize(o);
+        try {
+            byte[] header = new byte[HEADER_LENGTH];
+            Bytes.short2bytes(PROTOCOL, header);
+            if (o instanceof RpcRequest) {
+                Bytes.long2bytes(((RpcRequest) o).getId(), header, 4);
+            }
+            byte[] body = SerializeUtil.serialize(o);
 
-        byteBuf.writeBytes(body);
-        Bytes.int2bytes(body.length, header, 12);
-        // write
-        byteBuf.writeBytes(header); // write header.
+            byteBuf.writeBytes(body);
+            Bytes.int2bytes(body.length, header, 12);
+            // write
+            byteBuf.writeBytes(header); // write header.
+        } catch (Exception e) {
+            e.printStackTrace();
+//            logger.error(e.getMessage());
+        }
     }
 
     @Override
