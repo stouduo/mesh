@@ -26,6 +26,6 @@ public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
         channel.pipeline()
                 .addLast(new DubboRpcEncoder())
                 .addLast(new DubboRpcDecoder())
-                .addLast(new ClientInboundHandler());
+                .addLast(new ProviderClientInboundHandler());
     }
 }

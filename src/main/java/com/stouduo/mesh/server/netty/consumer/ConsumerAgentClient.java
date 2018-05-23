@@ -1,9 +1,11 @@
 package com.stouduo.mesh.server.netty.consumer;
 
+import com.alibaba.fastjson.JSON;
 import com.stouduo.mesh.dubbo.model.RpcFuture;
 import com.stouduo.mesh.dubbo.model.RpcRequestHolder;
 import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.server.AgentClient;
+import com.stouduo.mesh.server.netty.util.RequestHolder;
 import com.stouduo.mesh.util.Endpoint;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -19,19 +21,18 @@ public class ConsumerAgentClient extends AgentClient {
     }
 
     @Override
-    public Object invoke(RpcRequest rpcRequest) {
-        Endpoint reomteServer = rpcRequest.getRemoteServer();
+    public void invoke(RpcRequest rpcRequest) {
+        Endpoint remoteServer = rpcRequest.getRemoteServer();
         try {
-            SimpleChannelPool pool = poolMap.get(new InetSocketAddress(reomteServer.getHost(), reomteServer.getPort()));
+            SimpleChannelPool pool = poolMap.get(new InetSocketAddress(remoteServer.getHost(), remoteServer.getPort()));
             Channel channel = pool.acquire().get();
-            RpcFuture future = new RpcFuture();
-            RpcRequestHolder.put(String.valueOf(rpcRequest.getId()), future);
+//            RpcFuture future = new RpcFuture();
+//            RpcRequestHolder.put(String.valueOf(rpcRequest.getId()), future);
+            RequestHolder.putRequest(rpcRequest.getId());
             channel.writeAndFlush(rpcRequest);
             pool.release(channel);
-            return future.get();
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        return null;
     }
 }

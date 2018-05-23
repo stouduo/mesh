@@ -32,7 +32,7 @@ public class RpcFuture extends CompletableFuture<Object> implements Future<Objec
         //boolean b = latch.await(100, TimeUnit.MICROSECONDS);
         latch.await();
         try {
-            return JSON.parseObject(response.getBytes(), Integer.class);
+            return response.getBody();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,7 +42,7 @@ public class RpcFuture extends CompletableFuture<Object> implements Future<Objec
     @Override
     public Object get(long timeout, TimeUnit unit) throws InterruptedException {
         boolean b = latch.await(timeout, unit);
-        return JSON.parseObject(response.getBytes(), Integer.class);
+        return response.getBody();
     }
 
     public void done(RpcResponse response) {

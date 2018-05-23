@@ -1,8 +1,10 @@
 package com.stouduo.mesh.server.netty.provider;
 
+import com.alibaba.fastjson.JSON;
 import com.stouduo.mesh.dubbo.model.*;
 import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.server.AgentClient;
+import com.stouduo.mesh.server.netty.util.RequestHolder;
 import com.stouduo.mesh.util.IpHelper;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,7 +24,7 @@ public class ProviderAgentClient extends AgentClient {
     }
 
     @Override
-    public Object invoke(RpcRequest rpcRequest) {
+    public void invoke(RpcRequest rpcRequest) {
         try {
             String interfaceName = rpcRequest.getParameterStr("interface");
             String method = rpcRequest.getParameterStr("method");
@@ -42,14 +44,13 @@ public class ProviderAgentClient extends AgentClient {
             request.setVersion("2.0.0");
             request.setTwoWay(true);
             request.setData(invocation);
-            RpcFuture future = new RpcFuture();
-            RpcRequestHolder.put(String.valueOf(request.getId()), future);
+//            RpcFuture future = new RpcFuture();
+//            RpcRequestHolder.put(String.valueOf(request.getId()), future);
+            RequestHolder.putRequest(request.getId());
             channel.writeAndFlush(request);
             pool.release(channel);
-            return future.get();
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        return null;
     }
 }

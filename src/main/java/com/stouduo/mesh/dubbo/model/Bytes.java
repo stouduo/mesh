@@ -61,6 +61,15 @@ public class Bytes {
         b[off + 0] = (byte) (v >>> 24);
     }
 
+    public static byte[] int2bytes(int i) {
+        byte[] ret = new byte[4];
+        ret[3] = (byte) i;
+        ret[2] = (byte) (i >>> 8);
+        ret[1] = (byte) (i >>> 16);
+        ret[0] = (byte) (i >>> 24);
+        return ret;
+    }
+
     /**
      * to byte array.
      *
@@ -97,16 +106,14 @@ public class Bytes {
                 (((long) b[off + 0]) << 56);
     }
 
-    public static int bytes2int(byte[] b, int off)
-    {
+    public static int bytes2int(byte[] b, int off) {
         return ((b[off + 3] & 0xFF) << 0) +
                 ((b[off + 2] & 0xFF) << 8) +
                 ((b[off + 1] & 0xFF) << 16) +
                 ((b[off + 0]) << 24);
     }
 
-    public static int bytes2int(byte[] b)
-    {
+    public static int bytes2int(byte[] b) {
         return bytes2int(b, 0);
     }
 }

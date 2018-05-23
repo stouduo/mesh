@@ -17,6 +17,6 @@ public class ProviderServerInboundHandler extends SimpleChannelInboundHandler<Rp
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) throws Exception {
-        channelHandlerContext.writeAndFlush(providerInvokeHandler.invoke(rpcRequest));
+        providerInvokeHandler.invoke(rpcRequest);
     }
 }

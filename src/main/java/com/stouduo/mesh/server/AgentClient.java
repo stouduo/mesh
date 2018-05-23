@@ -40,7 +40,7 @@ public abstract class AgentClient implements AutoCloseable {
         };
     }
 
-    public abstract Object invoke(RpcRequest rpcRequest);
+    public abstract void invoke(RpcRequest rpcRequest);
 
     @Override
     public void close() {

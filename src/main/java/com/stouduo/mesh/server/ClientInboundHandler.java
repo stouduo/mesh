@@ -10,12 +10,12 @@ public class ClientInboundHandler extends SimpleChannelInboundHandler<RpcRespons
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse response) throws Exception {
-        System.out.println(response.toString());
-        String requestId = response.getRequestId();
-        RpcFuture future = RpcRequestHolder.get(requestId);
-        if (null != future) {
-            RpcRequestHolder.remove(requestId);
-            future.done(response);
-        }
+//        String requestId = response.getRequestId();
+//        RpcFuture future = RpcRequestHolder.get(requestId);
+//        if (null != future) {
+//            RpcRequestHolder.remove(requestId);
+//            future.done(response);
+//        }
+
     }
 }

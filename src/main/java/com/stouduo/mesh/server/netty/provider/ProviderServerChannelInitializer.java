@@ -1,6 +1,6 @@
 package com.stouduo.mesh.server.netty.provider;
 
-import com.stouduo.mesh.dubbo.model.RpcResponse;
+import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.server.netty.util.CustomByteToMessageCodec;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -13,7 +13,7 @@ public class ProviderServerChannelInitializer extends ChannelInitializer {
     @Override
     protected void initChannel(Channel channel) throws Exception {
         channel.pipeline()
-                .addLast(new CustomByteToMessageCodec(RpcResponse.class))
+                .addLast(new CustomByteToMessageCodec(RpcRequest.class))
                 .addLast(providerServerInboundHandler);
     }
 }

@@ -1,33 +1,33 @@
 package com.stouduo.mesh.dubbo.model;
 
-import java.util.Arrays;
+import java.io.Serializable;
 
-public class RpcResponse {
+public class RpcResponse implements Serializable {
 
-    private String requestId;
-    private byte[] bytes;
+    private long requestId;
+    private Object body;
 
-    public String getRequestId() {
+    public long getRequestId() {
         return requestId;
     }
 
-    public void setRequestId(String requestId) {
+    public void setRequestId(long requestId) {
         this.requestId = requestId;
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    public Object getBody() {
+        return body;
     }
 
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public void setBody(Object body) {
+        this.body = body;
     }
 
     @Override
     public String toString() {
         return "RpcResponse{" +
                 "requestId='" + requestId + '\'' +
-                ", bytes=" + Arrays.toString(bytes) +
+                ", body=" + body +
                 '}';
     }
 }

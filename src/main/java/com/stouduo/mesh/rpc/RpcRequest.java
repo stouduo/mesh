@@ -15,13 +15,11 @@ public class RpcRequest implements Serializable {
     private long id;
     private Map<String, String> parameters;
     private Endpoint remoteServer;
-    private MultiValueMap<String, String> multiParameters;
 
     public RpcRequest(Endpoint remoteServer) {
         this.id = atomicLong.getAndIncrement();
         this.parameters = new HashMap<>();
         this.remoteServer = remoteServer;
-        this.multiParameters = new LinkedMultiValueMap<>();
     }
 
     public RpcRequest() {
@@ -33,15 +31,6 @@ public class RpcRequest implements Serializable {
         return this;
     }
 
-    public MultiValueMap<String, String> getMultiParameters() {
-        return multiParameters;
-    }
-
-    public RpcRequest setMultiParameters(MultiValueMap<String, String> multiParameters) {
-        this.multiParameters = multiParameters;
-        this.parameters = multiParameters.toSingleValueMap();
-        return this;
-    }
 
     public RpcRequest setParameters(Map<String, String> parameters) {
         this.parameters = parameters;

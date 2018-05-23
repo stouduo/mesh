@@ -1,21 +1,24 @@
 package com.stouduo.mesh.server.netty.util;
 
 import com.stouduo.mesh.dubbo.model.Bytes;
+import com.stouduo.mesh.dubbo.model.RpcResponse;
 import com.stouduo.mesh.rpc.RpcRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.xml.BeanDefinitionDocumentReader;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 public class CustomByteToMessageCodec<T extends Serializable> extends ByteToMessageCodec {
     private static Logger logger = LoggerFactory.getLogger(CustomByteToMessageCodec.class);
     private final static short PROTOCOL = (short) 0xabcd;
-    private final static int HEADER_LENGTH = 16;
+    private final static int HEADER_LENGTH = 8;
     private Class<T> clazz;
 
     public CustomByteToMessageCodec(Class<T> clazz) {
@@ -35,28 +38,23 @@ public class CustomByteToMessageCodec<T extends Serializable> extends ByteToMess
      * @return
      */
     private Object decode2(ByteBuf byteBuf) {
-        int savedReaderIndex = byteBuf.readerIndex();
         int readable = byteBuf.readableBytes();
-
         if (readable < HEADER_LENGTH) {
             return CustomByteToMessageCodec.DecodeResult.NEED_MORE_INPUT;
         }
-
         byte[] header = new byte[HEADER_LENGTH];
         byteBuf.readBytes(header);
-        byte[] dataLen = Arrays.copyOfRange(header, 12, 16);
-        int len = Bytes.bytes2int(dataLen);
-        int tt = len + HEADER_LENGTH;
-        if (readable < tt) {
+        int len = Bytes.bytes2int(Arrays.copyOfRange(header, 4, 8));
+        if (readable < len + HEADER_LENGTH) {
             return CustomByteToMessageCodec.DecodeResult.NEED_MORE_INPUT;
         }
-
-        byteBuf.readerIndex(savedReaderIndex);
-        byte[] data = new byte[tt];
-        byteBuf.readBytes(data);
-
-        byte[] body = Arrays.copyOfRange(data, HEADER_LENGTH, data.length);
-        return SerializeUtil.deserialize(body, clazz);
+        byte[] body = new byte[len];
+        byteBuf.readBytes(body);
+        Object ret = SerializeUtil.deserialize(body, clazz);
+//        if (clazz.equals(RpcResponse.class)) {
+//            ((RpcResponse) ret).setRequestId(Bytes.bytes2long(Arrays.copyOfRange(header, 4, 12), 0) + "");
+//        }
+        return ret;
     }
 
     @Override
@@ -64,15 +62,13 @@ public class CustomByteToMessageCodec<T extends Serializable> extends ByteToMess
         try {
             byte[] header = new byte[HEADER_LENGTH];
             Bytes.short2bytes(PROTOCOL, header);
-            if (o instanceof RpcRequest) {
-                Bytes.long2bytes(((RpcRequest) o).getId(), header, 4);
-            }
+//            if (o instanceof RpcRequest) {
+//                Bytes.long2bytes(((RpcRequest) o).getId(), header, 4);
+//            }
             byte[] body = SerializeUtil.serialize(o);
-
-            byteBuf.writeBytes(body);
-            Bytes.int2bytes(body.length, header, 12);
-            // write
+            Bytes.int2bytes(body.length, header, 4);
             byteBuf.writeBytes(header); // write header.
+            byteBuf.writeBytes(body);
         } catch (Exception e) {
             e.printStackTrace();
 //            logger.error(e.getMessage());

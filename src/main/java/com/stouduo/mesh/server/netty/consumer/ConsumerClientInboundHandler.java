@@ -1,0 +1,30 @@
+package com.stouduo.mesh.server.netty.consumer;
+
+import com.stouduo.mesh.dubbo.model.Request;
+import com.stouduo.mesh.dubbo.model.RpcResponse;
+import com.stouduo.mesh.server.netty.util.RequestHolder;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.*;
+
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+
+public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<RpcResponse> {
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
+        if (RequestHolder.getRequest(msg.getRequestId()) != 0) {
+            FullHttpResponse response = new DefaultFullHttpResponse(
+                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
+                    Unpooled.wrappedBuffer(((Integer) msg.getBody()).toString().getBytes()));
+            response.headers().set(CONTENT_TYPE, "application/json");
+            response.headers().set(CONTENT_LENGTH,
+                    response.content().readableBytes());
+            response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            ctx.writeAndFlush(response);
+            RequestHolder.remove(msg.getRequestId());
+        }
+    }
+}

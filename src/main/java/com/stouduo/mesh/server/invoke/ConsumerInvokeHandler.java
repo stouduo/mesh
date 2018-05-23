@@ -25,13 +25,12 @@ public class ConsumerInvokeHandler {
     @Value("${agent.consumer.retry:3}")
     private long retry;
 
-    public Object invoke(RpcRequest request) {
+    public void invoke(RpcRequest request) {
         try {
             request.setRemoteServer(iLbStrategy.lbStrategy(iRegistry.find(request.getParameterStr(serverParamName))));
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-        Object ret = agentClient.invoke(request);
-        return ret;
+        agentClient.invoke(request);
     }
 }

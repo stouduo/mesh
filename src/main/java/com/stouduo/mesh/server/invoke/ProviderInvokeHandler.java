@@ -10,7 +10,7 @@ public class ProviderInvokeHandler {
     @Autowired
     private AgentClient agentClient;
 
-    public Object invoke(RpcRequest request) {
-        return agentClient.invoke(request);
+    public void invoke(RpcRequest request) {
+        agentClient.invoke(request);
     }
 }

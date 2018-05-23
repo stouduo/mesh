@@ -12,12 +12,12 @@ public class CustomChannelHandler extends SimpleChannelInboundHandler<RpcRespons
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse response) throws Exception {
-        String requestId = response.getRequestId();
-        RpcFuture future = RpcRequestHolder.get(requestId);
-        if (null != future) {
-            RpcRequestHolder.remove(requestId);
-            future.done(response);
-//            ChannelPoolManager.release(channelHandlerContext.channel());
-        }
+//        String requestId = response.getRequestId();
+//        RpcFuture future = RpcRequestHolder.get(requestId);
+//        if (null != future) {
+//            RpcRequestHolder.remove(requestId);
+//            future.done(response);
+////            ChannelPoolManager.release(channelHandlerContext.channel());
+//        }
     }
 }

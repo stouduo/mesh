@@ -1,6 +1,6 @@
 package com.stouduo.mesh.server.netty.consumer;
 
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcResponse;
 import com.stouduo.mesh.server.ClientInboundHandler;
 import com.stouduo.mesh.server.netty.util.CustomByteToMessageCodec;
 import io.netty.channel.Channel;
@@ -24,7 +24,7 @@ public class ConsumerClientChannelPoolHandler implements ChannelPoolHandler {
         channel.config().setKeepAlive(true);
         channel.config().setTcpNoDelay(true);
         channel.pipeline()
-                .addLast(new CustomByteToMessageCodec(RpcRequest.class))
-                .addLast(new ClientInboundHandler());
+                .addLast(new CustomByteToMessageCodec(RpcResponse.class))
+                .addLast(new ConsumerClientInboundHandler());
     }
 }
