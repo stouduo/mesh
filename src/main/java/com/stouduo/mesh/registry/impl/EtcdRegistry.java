@@ -150,7 +150,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     }
 
     @Override
-    public List<Endpoint> find(String serviceName) throws Exception {
+    public synchronized List<Endpoint> find(String serviceName) throws Exception {
         String findKey = MessageFormat.format("/{0}/{1}", rootPath, StringUtils.isEmpty(serviceName) ? this.serverName : serviceName);
         List<Endpoint> endpoints = providers.get(findKey);
         if (endpoints != null) {

@@ -35,7 +35,7 @@ public abstract class AgentClient implements AutoCloseable {
                 .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
         poolMap = new AbstractChannelPoolMap<InetSocketAddress, SimpleChannelPool>() {
             @Override
-            protected SimpleChannelPool newPool(InetSocketAddress key) {
+            protected synchronized SimpleChannelPool newPool(InetSocketAddress key) {
                 logger.info(key.toString());
                 return new FixedChannelPool(bootstrap.remoteAddress(key), clientChannelPoolHandler, maxChannels);
             }
