@@ -129,21 +129,19 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
         GetResponse response = kv.get(key, GetOption.newBuilder().withPrefix(key).build()).get();
         List<Endpoint> endpoints = new ArrayList<>();
         logger.info(">>>>>服务【" + findKey + "】数量为：" + response.getCount());
-        for (KeyValue kv : response.getKvs()) {
+        response.getKvs().forEach(kv -> {
             String k = kv.getKey().toStringUtf8();
             String v = kv.getValue().toStringUtf8();
-            String endpointStr = k.substring(k.lastIndexOf("/") + 1, k.length());
+            String[] endpointStr = k.substring(k.lastIndexOf("/") + 1, k.length()).split(":");
             logger.info(">>>服务地址：" + endpointStr);
-            String host = endpointStr.split(":")[0];
-            int port = Integer.valueOf(endpointStr.split(":")[1]);
-            endpoints.add(new Endpoint(host, port, Integer.parseInt(v)));
-        }
+            endpoints.add(new Endpoint(endpointStr[0], Integer.valueOf(endpointStr[1]), Integer.parseInt(v)));
+        });
         return endpoints;
     }
 
     @Override
     public void serverDown(Endpoint endpoint) throws Exception {
-        String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort()+"");
+        String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort() + "");
         kv.delete(ByteSequence.fromString(serverRegKey)).get();
         this.serverDown.compareAndSet(false, true);
         logger.info(">>>>>服务【" + serverRegKey + "】已下线！");
