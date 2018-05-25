@@ -35,14 +35,14 @@ public class AgentConfiguration {
     @Bean
     @ConditionalOnMissingBean(AgentClient.class)
     @ConditionalOnProperty(value = "type", havingValue = "provider")
-    public AgentClient providerAgentClient(@Value("${dubbo.protocol.port:4321}") int port, @Value("${agent.client.pool.maxChannels:1}") int maxChannels) {
+    public AgentClient providerAgentClient(@Value("${dubbo.protocol.port:4321}") int port, @Value("${agent.client.pool.maxChannels:4}") int maxChannels) {
         return new ProviderAgentClient(port, maxChannels);
     }
 
     @Bean
     @ConditionalOnMissingBean(AgentClient.class)
     @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:1}") int maxChannels) {
+    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:4}") int maxChannels) {
         return new ConsumerAgentClient(maxChannels);
     }
 

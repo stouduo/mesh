@@ -1,6 +1,5 @@
 package com.stouduo.mesh.dubbo;
 
-import com.stouduo.mesh.dubbo.model.Bytes;
 import com.stouduo.mesh.dubbo.model.JsonUtils;
 import com.stouduo.mesh.dubbo.model.Request;
 import com.stouduo.mesh.dubbo.model.RpcInvocation;

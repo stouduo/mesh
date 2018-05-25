@@ -1,6 +1,5 @@
 package com.stouduo.mesh.server.netty.util;
 
-import com.stouduo.mesh.dubbo.model.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
@@ -8,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 public class CustomByteToMessageCodec<T extends Serializable> extends ByteToMessageCodec {

@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Component
 @ChannelHandler.Sharable
@@ -41,7 +39,6 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
                 });
             } else if (method.equals(HttpMethod.POST)) { // 是POST请求
                 HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
-                decoder.offer(request);//form
                 List<InterfaceHttpData> parmList = decoder.getBodyHttpDatas();
                 for (InterfaceHttpData parm : parmList) {
                     Attribute data = (Attribute) parm;
