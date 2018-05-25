@@ -24,11 +24,7 @@ public class Endpoint implements Serializable {
 
     @Override
     public String toString() {
-        return "Endpoint{" +
-                "host='" + host + '\'' +
-                ", port=" + port +
-                ", capacity=" + capacity +
-                '}';
+        return host + ":" + port + "-" + capacity;
     }
 
     @Override

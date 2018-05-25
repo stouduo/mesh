@@ -2,6 +2,7 @@ package com.stouduo.mesh.server.netty.provider;
 
 import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.server.invoke.ProviderInvokeHandler;
+import com.stouduo.mesh.server.netty.util.ContextHolder;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,6 +18,7 @@ public class ProviderServerInboundHandler extends SimpleChannelInboundHandler<Rp
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcRequest rpcRequest) throws Exception {
+        ContextHolder.putContext(rpcRequest.getId(), channelHandlerContext);
         providerInvokeHandler.invoke(rpcRequest);
     }
 }

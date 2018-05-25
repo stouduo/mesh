@@ -48,7 +48,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     @Override
     public void register() {
         if (this.lease == null) {
-            logger.debug(">>>>>开始注册服务，服务类型为：" + serverType);
+            logger.info(">>>>>开始注册服务，服务类型为：" + serverType);
             Client client = Client.builder().endpoints(serverUrl).build();
             this.lease = client.getLeaseClient();
             this.kv = client.getKVClient();
@@ -67,7 +67,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                 e.printStackTrace();
                 logger.error(e.getMessage());
             }
-            logger.debug(">>>>>服务注册完成！");
+            logger.info(">>>>>服务注册完成！");
         }
     }
 
@@ -93,7 +93,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     private void watch(Client client) {
         final String findKey = MessageFormat.format("/{0}/{1}", rootPath, this.serverName);
-        logger.debug(">>>>>开始监听服务【" + findKey + "】");
+        logger.info(">>>>>开始监听服务【" + findKey + "】");
         ByteSequence bsFindKey = ByteSequence.fromString(findKey);
         final Watcher watcher = client.getWatchClient().watch(bsFindKey, WatchOption.newBuilder().withRevision(revision).withPrefix(bsFindKey).build());
         Executors.newSingleThreadExecutor().submit(
@@ -101,7 +101,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                     try {
                         while (!serverDown.get()) {
                             for (WatchEvent event : watcher.listen().getEvents()) {
-                                logger.debug(">>>>>监听到事件【" + event.getEventType().toString() + "】");
+                                logger.info(">>>>>监听到事件【" + event.getEventType().toString() + "】");
                                 switch (event.getEventType()) {
                                     case UNRECOGNIZED:
                                         break;
@@ -121,19 +121,19 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
 
     private void register2Etcd() throws Exception {
         kv.put(ByteSequence.fromString(registryKey), ByteSequence.fromString(serverCapacity), PutOption.newBuilder().withLeaseId(leaseId).build()).get();
-        logger.debug(kv.get(ByteSequence.fromString(registryKey)).get().getCount() != 0 ? (">>>>>注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity) : ">>>>>未知原因，注册失败。");
+        logger.info(kv.get(ByteSequence.fromString(registryKey)).get().getCount() != 0 ? (">>>>>注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity) : ">>>>>未知原因，注册失败。");
     }
 
     private List<Endpoint> findServers(String findKey) throws Exception {
         ByteSequence key = ByteSequence.fromString(findKey);
         GetResponse response = kv.get(key, GetOption.newBuilder().withPrefix(key).build()).get();
         List<Endpoint> endpoints = new ArrayList<>();
-        logger.debug(">>>>>服务【" + findKey + "】数量为：" + response.getCount());
+        logger.info(">>>>>服务【" + findKey + "】数量为：" + response.getCount());
         for (KeyValue kv : response.getKvs()) {
             String k = kv.getKey().toStringUtf8();
             String v = kv.getValue().toStringUtf8();
             String endpointStr = k.substring(k.lastIndexOf("/") + 1, k.length());
-            logger.debug(">>>服务地址：" + endpointStr);
+            logger.info(">>>服务地址：" + endpointStr);
             String host = endpointStr.split(":")[0];
             int port = Integer.valueOf(endpointStr.split(":")[1]);
             endpoints.add(new Endpoint(host, port, Integer.parseInt(v)));
@@ -146,7 +146,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
         String serverRegKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, endpoint.getHost(), endpoint.getPort()+"");
         kv.delete(ByteSequence.fromString(serverRegKey)).get();
         this.serverDown.compareAndSet(false, true);
-        logger.debug(">>>>>服务【" + serverRegKey + "】已下线！");
+        logger.info(">>>>>服务【" + serverRegKey + "】已下线！");
     }
 
     @Override

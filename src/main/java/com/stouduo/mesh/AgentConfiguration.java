@@ -8,6 +8,7 @@ import com.stouduo.mesh.rpc.loadbalance.strategy.impl.RoundLbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRandomLbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRoundLbStrategy;
 import com.stouduo.mesh.server.AgentClient;
+import com.stouduo.mesh.server.AgentServer;
 import com.stouduo.mesh.server.netty.consumer.ConsumerAgentClient;
 import com.stouduo.mesh.server.netty.consumer.ConsumerClientChannelPoolHandler;
 import com.stouduo.mesh.server.netty.consumer.ConsumerServerChannelInitializer;
@@ -17,6 +18,7 @@ import com.stouduo.mesh.server.netty.provider.ProviderServerChannelInitializer;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.pool.ChannelPoolHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AgentConfiguration {
+
+    @Bean
+    public ApplicationRunner serverStart() {
+        return new AgentServer();
+    }
+
     @Bean
     @ConditionalOnMissingBean(AgentClient.class)
     @ConditionalOnProperty(value = "type", havingValue = "provider")

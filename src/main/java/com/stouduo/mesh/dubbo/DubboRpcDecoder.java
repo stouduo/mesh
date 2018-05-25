@@ -58,42 +58,24 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
      */
     private Object decode2(ByteBuf byteBuf) {
 
-        int savedReaderIndex = byteBuf.readerIndex();
         int readable = byteBuf.readableBytes();
 
         if (readable < HEADER_LENGTH) {
             return DecodeResult.NEED_MORE_INPUT;
         }
-
-        byte[] header = new byte[HEADER_LENGTH];
-        byteBuf.readBytes(header);
-        byte[] dataLen = Arrays.copyOfRange(header, 12, 16);
-        int len = Bytes.bytes2int(dataLen);
+        byteBuf.readerIndex(byteBuf.readerIndex() + 4);
+        long reqId = byteBuf.readLong();
+        int len = byteBuf.readInt();
         int tt = len + HEADER_LENGTH;
         if (readable < tt) {
             return DecodeResult.NEED_MORE_INPUT;
         }
-
-        byteBuf.readerIndex(savedReaderIndex);
-        byte[] data = new byte[tt];
-        byteBuf.readBytes(data);
-
-
-        //byte[] data = new byte[byteBuf.readableBytes()];
-        //byteBuf.readBytes(data);
-
-        // HEADER_LENGTH + 1，忽略header & Response value type的读取，直接读取实际Return value
-        // dubbo返回的body中，前后各有一个换行，去掉
-        byte[] subArray = Arrays.copyOfRange(data, HEADER_LENGTH + 2, data.length - 1);
-
-        String s = new String(subArray);
-
-        byte[] requestIdBytes = Arrays.copyOfRange(data, 4, 12);
-        long requestId = Bytes.bytes2long(requestIdBytes, 0);
-
+        byte[] body = new byte[len - 2];
+        byteBuf.readerIndex(byteBuf.readerIndex() + 2);
+        byteBuf.readBytes(body);
         RpcResponse response = new RpcResponse();
-        response.setRequestId(String.valueOf(requestId));
-        response.setBody(subArray);
+        response.setRequestId(reqId);
+        response.setBody(body);
         return response;
     }
 }

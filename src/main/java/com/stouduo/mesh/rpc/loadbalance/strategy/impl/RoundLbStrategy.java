@@ -15,9 +15,9 @@ public class RoundLbStrategy implements ILbStrategy {
     private static AtomicInteger index = new AtomicInteger(0);
 
     protected int getIndex(int endpointSize) {
-        if (index.get() >= endpointSize) {
-            index.compareAndSet(index.get(), 0);
-        }
+//        if (index.get() >= endpointSize) {
+//            index.compareAndSet(index.get(), 0);
+//        }
         return index.getAndIncrement() % endpointSize;
     }
 }

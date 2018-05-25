@@ -2,6 +2,8 @@ package com.stouduo.mesh.server.netty.consumer;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ConsumerServerChannelInitializer extends ChannelInitializer {
     @Autowired
     private ConsumerServerInboundHandler consumerServerInboundHandler;
+    private static EventLoopGroup workers = new DefaultEventLoopGroup();
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
@@ -19,6 +22,7 @@ public class ConsumerServerChannelInitializer extends ChannelInitializer {
                 .addLast(new HttpObjectAggregator(65536))
                 .addLast(new HttpContentCompressor())
                 .addLast(new HttpResponseEncoder())
-                .addLast(consumerServerInboundHandler);
+//                .addLast(consumerServerInboundHandler);
+                .addLast(workers, consumerServerInboundHandler);
     }
 }

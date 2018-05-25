@@ -1,8 +1,7 @@
 package com.stouduo.mesh.server.netty.consumer;
 
-import com.stouduo.mesh.dubbo.model.Request;
 import com.stouduo.mesh.dubbo.model.RpcResponse;
-import com.stouduo.mesh.server.netty.util.RequestHolder;
+import com.stouduo.mesh.server.netty.util.ContextHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -15,7 +14,8 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<RpcResponse> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
-        if (RequestHolder.getRequest(msg.getRequestId()) != 0) {
+        ChannelHandlerContext context = ContextHolder.getContext(msg.getRequestId());
+        if (context != null) {
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
                     Unpooled.wrappedBuffer(((Integer) msg.getBody()).toString().getBytes()));
@@ -23,8 +23,8 @@ public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<Rp
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());
             response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-            ctx.writeAndFlush(response);
-            RequestHolder.remove(msg.getRequestId());
+            context.writeAndFlush(response);
+            ContextHolder.remove(msg.getRequestId());
         }
     }
 }

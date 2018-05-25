@@ -2,6 +2,7 @@ package com.stouduo.mesh.server.netty.consumer;
 
 import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.server.invoke.ConsumerInvokeHandler;
+import com.stouduo.mesh.server.netty.util.ContextHolder;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -25,7 +26,7 @@ import java.util.concurrent.Executors;
 public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     @Autowired
     private ConsumerInvokeHandler consumerInvokeHandler;
-    private static ExecutorService works = Executors.newFixedThreadPool(4);
+//    private static ExecutorService works = Executors.newFixedThreadPool(8);
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
@@ -46,12 +47,19 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
                     Attribute data = (Attribute) parm;
                     parmMap.put(data.getName(), data.getValue());
                 }
+                decoder.destroy();
             } else {
                 ;
             }
             if (parmMap.size() != 0) {
                 rpcRequest.setParameters(parmMap);
-                works.submit(() -> consumerInvokeHandler.invoke(rpcRequest));
+                ContextHolder.putContext(rpcRequest.getId(), channelHandlerContext);
+                if (channelHandlerContext.executor().inEventLoop()) {
+                    consumerInvokeHandler.invoke(rpcRequest);
+                } else {
+                    channelHandlerContext.executor().execute(() -> consumerInvokeHandler.invoke(rpcRequest));
+                }
+//                works.submit(() -> consumerInvokeHandler.invoke(rpcRequest));
             }
         } catch (Exception e) {
             e.printStackTrace();
