@@ -3,18 +3,13 @@ package com.stouduo.mesh.registry.impl;
 import com.coreos.jetcd.Client;
 import com.coreos.jetcd.KV;
 import com.coreos.jetcd.Lease;
-import com.coreos.jetcd.Watch;
 import com.coreos.jetcd.Watch.Watcher;
 import com.coreos.jetcd.data.ByteSequence;
-import com.coreos.jetcd.data.KeyValue;
 import com.coreos.jetcd.kv.GetResponse;
-import com.coreos.jetcd.kv.PutResponse;
-import com.coreos.jetcd.lease.LeaseKeepAliveResponse;
 import com.coreos.jetcd.options.GetOption;
 import com.coreos.jetcd.options.PutOption;
 import com.coreos.jetcd.options.WatchOption;
 import com.coreos.jetcd.watch.WatchEvent;
-import com.coreos.jetcd.watch.WatchResponse;
 import com.stouduo.mesh.registry.BaseRegistry;
 import com.stouduo.mesh.registry.IRegistry;
 import com.stouduo.mesh.util.Endpoint;
@@ -60,9 +55,11 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                 if (isProvider()) {
                     this.registryKey = MessageFormat.format("/{0}/{1}/{2}:{3}", rootPath, serverName, IpHelper.getHostIp(), serverPort);
                     register2Etcd();
-                } else
+                } else {
                     //监听
                     watch(client);
+                    find(rootPath);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error(e.getMessage());

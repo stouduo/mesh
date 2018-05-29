@@ -1,6 +1,9 @@
 package com.stouduo.mesh.registry;
 
+import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
+import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightLbStrategy;
 import com.stouduo.mesh.util.Endpoint;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +31,11 @@ public class BaseRegistry implements AutoCloseable {
     @Value("${agent.provider.serverCapacity:1}")
     protected String serverCapacity;
 
+    @Autowired
+    private ILbStrategy iLbStrategy;
+
     protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
+    protected static Map<String, List<Endpoint>> weightedProviders = new ConcurrentHashMap<>();
 
     public String getServerCapacity() {
         return serverCapacity;
@@ -82,9 +89,15 @@ public class BaseRegistry implements AutoCloseable {
         return "provider".equalsIgnoreCase(this.serverType);
     }
 
+    protected boolean isWeightLbStrategy() {
+        return iLbStrategy instanceof WeightLbStrategy;
+    }
+
     @Override
     public void close() throws Exception {
         this.providers.clear();
         this.providers = null;
+        this.weightedProviders.clear();
+        this.weightedProviders = null;
     }
 }
