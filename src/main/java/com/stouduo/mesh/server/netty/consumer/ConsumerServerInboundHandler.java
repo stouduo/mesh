@@ -51,11 +51,12 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
             if (parmMap.size() != 0) {
                 rpcRequest.setParameters(parmMap);
                 ContextHolder.putContext(rpcRequest.getId(), channelHandlerContext);
-                if (channelHandlerContext.executor().inEventLoop()) {
-                    consumerInvokeHandler.invoke(rpcRequest);
-                } else {
-                    channelHandlerContext.executor().execute(() -> consumerInvokeHandler.invoke(rpcRequest));
-                }
+                consumerInvokeHandler.invoke(rpcRequest);
+//                if (channelHandlerContext.executor().inEventLoop()) {
+//                    consumerInvokeHandler.invoke(rpcRequest);
+//                } else {
+//                    channelHandlerContext.executor().execute(() -> consumerInvokeHandler.invoke(rpcRequest));
+//                }
 //                works.submit(() -> consumerInvokeHandler.invoke(rpcRequest));
             }
         } catch (Exception e) {

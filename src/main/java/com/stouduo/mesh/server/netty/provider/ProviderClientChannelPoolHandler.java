@@ -10,8 +10,6 @@ import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
-    private static EventLoopGroup workers = new DefaultEventLoopGroup();
-
     @Override
     public void channelReleased(Channel channel) throws Exception {
 
@@ -30,6 +28,6 @@ public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
         channel.pipeline()
                 .addLast(new DubboRpcEncoder())
                 .addLast(new DubboRpcDecoder())
-                .addLast(workers, new ProviderClientInboundHandler());
+                .addLast(new ProviderClientInboundHandler());
     }
 }
