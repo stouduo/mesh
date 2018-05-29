@@ -4,10 +4,14 @@ import com.stouduo.mesh.dubbo.DubboRpcDecoder;
 import com.stouduo.mesh.dubbo.DubboRpcEncoder;
 import com.stouduo.mesh.server.ClientInboundHandler;
 import io.netty.channel.Channel;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
+    private static EventLoopGroup workers = new DefaultEventLoopGroup();
+
     @Override
     public void channelReleased(Channel channel) throws Exception {
 
@@ -26,6 +30,6 @@ public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
         channel.pipeline()
                 .addLast(new DubboRpcEncoder())
                 .addLast(new DubboRpcDecoder())
-                .addLast(new ProviderClientInboundHandler());
+                .addLast(workers, new ProviderClientInboundHandler());
     }
 }

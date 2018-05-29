@@ -1,13 +1,16 @@
 package com.stouduo.mesh.server.netty.consumer;
 
 import com.stouduo.mesh.dubbo.model.RpcResponse;
-import com.stouduo.mesh.server.ClientInboundHandler;
 import com.stouduo.mesh.server.netty.util.CustomByteToMessageCodec;
 import io.netty.channel.Channel;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class ConsumerClientChannelPoolHandler implements ChannelPoolHandler {
+    private static EventLoopGroup workers = new DefaultEventLoopGroup();
+
     @Override
     public void channelReleased(Channel channel) throws Exception {
 
@@ -25,6 +28,6 @@ public class ConsumerClientChannelPoolHandler implements ChannelPoolHandler {
         channel.config().setTcpNoDelay(true);
         channel.pipeline()
                 .addLast(new CustomByteToMessageCodec(RpcResponse.class))
-                .addLast(new ConsumerClientInboundHandler());
+                .addLast(workers, new ConsumerClientInboundHandler());
     }
 }
