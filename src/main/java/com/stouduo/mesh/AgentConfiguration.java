@@ -40,7 +40,7 @@ public class AgentConfiguration {
     @Bean
     @ConditionalOnMissingBean(AgentClient.class)
     @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:4}") int maxChannels) {
+    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:8}") int maxChannels) {
         return new ConsumerAgentClient(maxChannels);
     }
 

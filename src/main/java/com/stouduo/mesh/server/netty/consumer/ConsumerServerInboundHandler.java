@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +35,16 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
             final Map<String, String> parmMap = new HashMap<>();
             if (method.equals(HttpMethod.GET)) {// 是GET请求
                 QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
-                decoder.parameters().forEach((k, v) -> {
-                    parmMap.put(k, v.get(0));
-                });
+                decoder.parameters().forEach((k, v) -> parmMap.put(k, v.get(0)));
             } else if (method.equals(HttpMethod.POST)) { // 是POST请求
                 HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
-                List<InterfaceHttpData> parmList = decoder.getBodyHttpDatas();
-                for (InterfaceHttpData parm : parmList) {
-                    Attribute data = (Attribute) parm;
-                    parmMap.put(data.getName(), data.getValue());
-                }
+                decoder.getBodyHttpDatas().stream().map(param -> (Attribute) param).forEach(param -> {
+                    try {
+                        parmMap.put(param.getName(), param.getValue());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
                 decoder.destroy();
             } else {
                 ;
@@ -51,11 +52,12 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
             if (parmMap.size() != 0) {
                 rpcRequest.setParameters(parmMap);
                 ContextHolder.putContext(rpcRequest.getId(), channelHandlerContext);
-                if (channelHandlerContext.executor().inEventLoop()) {
-                    consumerInvokeHandler.invoke(rpcRequest);
-                } else {
-                    channelHandlerContext.executor().execute(() -> consumerInvokeHandler.invoke(rpcRequest));
-                }
+                consumerInvokeHandler.invoke(rpcRequest);
+//                if (channelHandlerContext.executor().inEventLoop()) {
+//                    consumerInvokeHandler.invoke(rpcRequest);
+//                } else {
+//                    channelHandlerContext.executor().execute(() -> consumerInvokeHandler.invoke(rpcRequest));
+//                }
 //                works.submit(() -> consumerInvokeHandler.invoke(rpcRequest));
             }
         } catch (Exception e) {
