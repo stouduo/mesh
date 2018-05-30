@@ -16,7 +16,7 @@ public class ConsumerAgentClient extends AgentClient {
 
     public ConsumerAgentClient(int maxChannels) {
         this.maxChannels = maxChannels;
-        this.workerGroup = new NioEventLoopGroup();
+        this.workerGroup = new NioEventLoopGroup(8);
     }
 
     @Override
