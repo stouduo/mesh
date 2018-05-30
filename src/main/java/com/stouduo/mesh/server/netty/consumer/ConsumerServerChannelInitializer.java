@@ -13,16 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ConsumerServerChannelInitializer extends ChannelInitializer {
     @Autowired
     private ConsumerServerInboundHandler consumerServerInboundHandler;
-    private static EventLoopGroup workers = new DefaultEventLoopGroup();
+//    private static EventLoopGroup workers = new DefaultEventLoopGroup();
 
     @Override
     protected void initChannel(Channel channel) throws Exception {
         channel.pipeline()
                 .addLast(new HttpRequestDecoder())
                 .addLast(new HttpObjectAggregator(65536))
-                .addLast(new HttpContentCompressor())
+//                .addLast(new HttpContentCompressor())
                 .addLast(new HttpResponseEncoder())
-//                .addLast(consumerServerInboundHandler);
-                .addLast(workers, consumerServerInboundHandler);
+                .addLast(consumerServerInboundHandler);
+//                .addLast(workers, consumerServerInboundHandler);
     }
 }

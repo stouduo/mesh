@@ -3,10 +3,8 @@ package com.stouduo.mesh;
 import com.stouduo.mesh.registry.IRegistry;
 import com.stouduo.mesh.registry.impl.EtcdRegistry;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
-import com.stouduo.mesh.rpc.loadbalance.strategy.impl.DefaultLbStrategy;
-import com.stouduo.mesh.rpc.loadbalance.strategy.impl.RoundLbStrategy;
-import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRandomLbStrategy;
-import com.stouduo.mesh.rpc.loadbalance.strategy.impl.WeightRoundLbStrategy;
+import com.stouduo.mesh.rpc.loadbalance.strategy.impl.RoundRobinLbStrategy;
+import com.stouduo.mesh.rpc.loadbalance.strategy.impl.RandomLbStrategy;
 import com.stouduo.mesh.server.AgentClient;
 import com.stouduo.mesh.server.AgentServer;
 import com.stouduo.mesh.server.netty.consumer.ConsumerAgentClient;
@@ -77,26 +75,14 @@ public class AgentConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightRound")
-    public ILbStrategy weightRoundLbStrategy() {
-        return new WeightRoundLbStrategy();
-    }
-
-    @Bean
-    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "round")
+    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "roundRobin")
     public ILbStrategy roundLbStrategy() {
-        return new RoundLbStrategy();
-    }
-
-    @Bean
-    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightRandom")
-    public ILbStrategy weightRandomLbStrategy() {
-        return new WeightRandomLbStrategy();
+        return new RoundRobinLbStrategy();
     }
 
     @Bean
     @ConditionalOnMissingBean(ILbStrategy.class)
     public ILbStrategy defaultLbStrategy() {
-        return new DefaultLbStrategy();
+        return new RandomLbStrategy();
     }
 }

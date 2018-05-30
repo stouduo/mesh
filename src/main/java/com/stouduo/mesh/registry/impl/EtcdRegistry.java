@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EtcdRegistry extends BaseRegistry implements IRegistry {
     private Logger logger = LoggerFactory.getLogger(EtcdRegistry.class);
@@ -103,7 +104,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
                                     case UNRECOGNIZED:
                                         break;
                                     default:
-                                        providers.put(findKey, findServers(findKey));
+                                        findServers(findKey);
                                         break;
                                 }
                             }
@@ -121,19 +122,25 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
         logger.info(kv.get(ByteSequence.fromString(registryKey)).get().getCount() != 0 ? (">>>>>注册一个新服务【" + registryKey + "】，容量为：" + serverCapacity) : ">>>>>未知原因，注册失败。");
     }
 
-    private List<Endpoint> findServers(String findKey) throws Exception {
+    private void findServers(String findKey) throws Exception {
+        providers.clear();
         ByteSequence key = ByteSequence.fromString(findKey);
         GetResponse response = kv.get(key, GetOption.newBuilder().withPrefix(key).build()).get();
-        List<Endpoint> endpoints = new ArrayList<>();
-        logger.info(">>>>>服务【" + findKey + "】数量为：" + response.getCount());
         response.getKvs().forEach(kv -> {
             String k = kv.getKey().toStringUtf8();
             String v = kv.getValue().toStringUtf8();
-            String[] endpointStr = k.substring(k.lastIndexOf("/") + 1, k.length()).split(":");
-            logger.info(">>>服务地址：" + endpointStr);
-            endpoints.add(new Endpoint(endpointStr[0], Integer.valueOf(endpointStr[1]), Integer.parseInt(v)));
+            int splitIndex = k.lastIndexOf("/");
+            String serviceKey = k.substring(0, splitIndex);
+            List<Endpoint> endpoints = providers.getOrDefault(serviceKey, new ArrayList<>());
+            String[] endpointStr = k.substring(splitIndex + 1, k.length()).split(":");
+            int capacity = Integer.parseInt(v);
+            Endpoint endpoint = new Endpoint(endpointStr[0], Integer.valueOf(endpointStr[1]), capacity);
+            while (capacity-- > 0) {
+                endpoints.add(endpoint);
+            }
+            providers.put(serviceKey, endpoints);
         });
-        return endpoints;
+        logger.info(providers.toString());
     }
 
     @Override
@@ -145,15 +152,13 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
     }
 
     @Override
-    public synchronized List<Endpoint> find(String serviceName) throws Exception {
+    public List<Endpoint> find(String serviceName) throws Exception {
         String findKey = MessageFormat.format("/{0}/{1}", rootPath, StringUtils.isEmpty(serviceName) ? this.serverName : serviceName);
-        List<Endpoint> endpoints = providers.get(findKey);
+        List<Endpoint> endpoints = providers.getOrDefault(findKey, null);
         if (endpoints != null) {
             if (endpoints.size() != 0) return endpoints;
             else providers.remove(findKey);
         }
-        endpoints = findServers(findKey);
-        providers.put(findKey, endpoints);
         return endpoints;
     }
 

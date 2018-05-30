@@ -2,7 +2,7 @@ package com.stouduo.mesh.rpc.loadbalance.strategy.impl;
 
 import java.util.Random;
 
-public class WeightRandomLbStrategy extends WeightLbStrategy {
+public class RandomLbStrategy extends AbstractLbStrategy {
     private final Random random = new Random();
 
     @Override

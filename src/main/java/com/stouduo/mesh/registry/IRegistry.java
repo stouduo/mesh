@@ -12,4 +12,5 @@ public interface IRegistry {
     List<Endpoint> find(String serviceName) throws Exception;
 
     void serverDown(Endpoint endpoint) throws Exception;
+
 }
