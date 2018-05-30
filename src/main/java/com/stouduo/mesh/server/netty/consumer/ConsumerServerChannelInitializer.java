@@ -19,9 +19,9 @@ public class ConsumerServerChannelInitializer extends ChannelInitializer {
         channel.pipeline()
                 .addLast(new HttpRequestDecoder())
                 .addLast(new HttpObjectAggregator(65536))
-                .addLast(new HttpContentCompressor())
+//                .addLast(new HttpContentCompressor())
                 .addLast(new HttpResponseEncoder())
 //                .addLast(consumerServerInboundHandler);
-                .addLast( consumerServerInboundHandler);
+                .addLast(consumerServerInboundHandler);
     }
 }
