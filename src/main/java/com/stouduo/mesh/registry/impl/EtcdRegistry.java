@@ -133,7 +133,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
             String k = kv.getKey().toStringUtf8();
             String v = kv.getValue().toStringUtf8();
             String[] endpointStr = k.substring(k.lastIndexOf("/") + 1, k.length()).split(":");
-            logger.info(">>>服务地址：" + endpointStr);
+            logger.info(">>>服务地址：" + endpointStr[0] + ":" + endpointStr[1]);
             endpoints.add(new Endpoint(endpointStr[0], Integer.valueOf(endpointStr[1]), Integer.parseInt(v)));
         });
         return endpoints;
