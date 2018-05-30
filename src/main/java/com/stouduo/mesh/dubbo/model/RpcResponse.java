@@ -3,7 +3,7 @@ package com.stouduo.mesh.dubbo.model;
 public class RpcResponse {
 
     private String requestId;
-    private byte[] bytes;
+    private Object body;
 
     public String getRequestId() {
         return requestId;
@@ -13,11 +13,11 @@ public class RpcResponse {
         this.requestId = requestId;
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    public Object getBytes() {
+        return body;
     }
 
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public void setBytes(Object body) {
+        this.body = body;
     }
 }

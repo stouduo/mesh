@@ -1,44 +1,38 @@
-package com.stouduo.mesh.dubbo;
+package com.stouduo.mesh.dubbo.modify;
 
-import com.alibaba.fastjson.JSON;
-import com.stouduo.mesh.dubbo.model.*;
+import com.stouduo.mesh.dubbo.model.JsonUtils;
+import com.stouduo.mesh.dubbo.model.Request;
+import com.stouduo.mesh.dubbo.model.RpcInvocation;
+import com.stouduo.mesh.dubbo.model.RpcRequestHolder;
 import com.stouduo.mesh.rpc.client.ConsumerRpcClient;
 import com.stouduo.mesh.rpc.client.RpcRequest;
-import com.stouduo.mesh.util.Endpoint;
-import com.stouduo.mesh.util.IpHelper;
 import io.netty.channel.Channel;
-import io.netty.util.internal.StringUtil;
+import io.netty.channel.ChannelFuture;
+import io.netty.util.concurrent.FutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
-public class DubboConsumerRpcClient implements ConsumerRpcClient {
-    private Logger logger = LoggerFactory.getLogger(DubboConsumerRpcClient.class);
+public class CustomConsumerRpcClient implements ConsumerRpcClient {
+    private Logger logger = LoggerFactory.getLogger(CustomConsumerRpcClient.class);
 
-    private ConnecManager connectManager;
+    private ChannelPoolManager channelPoolManager;
 
-    private Endpoint remoteUri;
-
-    public DubboConsumerRpcClient(int host) {
-        try {
-            this.remoteUri = new Endpoint(IpHelper.getHostIp(), host);
-            this.connectManager = new ConnecManager(remoteUri);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public CustomConsumerRpcClient(int port, int maxChannels) {
+        this.channelPoolManager = new ChannelPoolManager(port, maxChannels);
     }
 
-    public Object invoke(RpcRequest rpcRequest) throws Exception {
+
+    public Mono invoke(RpcRequest rpcRequest) throws Exception {
         String interfaceName = rpcRequest.getParameterStr("interface");
         String method = rpcRequest.getParameterStr("method");
         String parameterTypesString = rpcRequest.getParameterStr("parameterTypesString");
         String parameter = rpcRequest.getParameterStr("parameter");
-        Channel channel = connectManager.getChannel();
 
         RpcInvocation invocation = new RpcInvocation();
         invocation.setMethodName(method);
@@ -55,12 +49,17 @@ public class DubboConsumerRpcClient implements ConsumerRpcClient {
         request.setTwoWay(true);
         request.setData(invocation);
 
-        logger.info("requestId=" + request.getId());
+        logger.debug("requestId=" + request.getId());
 
-        RpcFuture future = new RpcFuture();
+        channelPoolManager.acquireFuture().addListener((FutureListener<Channel>) f -> {
+            if (f.isSuccess()) {
+                Channel channel = f.getNow();
+                channel.writeAndFlush(request);
+                channelPoolManager.release(channel);
+            }
+        });
+        CompletableFuture<Object> future = new CompletableFuture<>();
         RpcRequestHolder.put(String.valueOf(request.getId()), future);
-
-        channel.writeAndFlush(request);
-        return JSON.parseObject((byte[]) future.get(1, TimeUnit.MINUTES), Integer.class);
+        return Mono.fromFuture(future);
     }
 }

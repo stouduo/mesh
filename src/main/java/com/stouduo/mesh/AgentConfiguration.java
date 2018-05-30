@@ -1,6 +1,6 @@
 package com.stouduo.mesh;
 
-import com.stouduo.mesh.dubbo.DubboConsumerRpcClient;
+import com.stouduo.mesh.dubbo.modify.CustomConsumerRpcClient;
 import com.stouduo.mesh.invokehandler.InvokeHandler;
 import com.stouduo.mesh.invokehandler.impl.ConsumerInvokeHandler;
 import com.stouduo.mesh.invokehandler.impl.DefaultInvokeHandler;
@@ -50,9 +50,15 @@ public class AgentConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ConsumerRpcClient.class)
-    public ConsumerRpcClient dubboRpcClient(@Value("${dubbo.protocol.port:20880}") int dubboProtoPort) {
-        return new DubboConsumerRpcClient(dubboProtoPort);
+    public ConsumerRpcClient dubboRpcClient(@Value("${dubbo.protocol.port:20880}") int dubboProtoPort, @Value("${agent.provider.maxChannels:4}") int maxChannels) {
+        return new CustomConsumerRpcClient(dubboProtoPort, maxChannels);
     }
+//    @Bean
+//    @ConditionalOnMissingBean(ConsumerRpcClient.class)
+//    public ConsumerRpcClient dubboRpcClient(@Value("${dubbo.protocol.port:20880}") int dubboProtoPort) {
+//        return new DubboConsumerRpcClient().setConnectManager(new ConnecManager(dubboProtoPort));
+//    }
+
 
     @Bean
     @ConditionalOnMissingBean(AgentRpcClient.class)
