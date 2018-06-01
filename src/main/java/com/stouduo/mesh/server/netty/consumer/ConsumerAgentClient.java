@@ -10,7 +10,7 @@ public class ConsumerAgentClient extends AgentClient {
 
     public ConsumerAgentClient(int maxChannels) {
         this.maxChannels = maxChannels;
-        this.workerGroup = new NioEventLoopGroup(4);
+        this.workerGroup = new NioEventLoopGroup(8);
     }
 
     @Override

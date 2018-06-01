@@ -15,7 +15,7 @@ public class ProviderAgentClient extends AgentClient {
     private InetSocketAddress inetSocketAddress;
 
     public ProviderAgentClient(int serverPort, int maxChannels) {
-        this.workerGroup = new NioEventLoopGroup(4);
+        this.workerGroup = new NioEventLoopGroup(8);
         this.maxChannels = maxChannels;
         this.inetSocketAddress = new InetSocketAddress(IpHelper.getHostIp(), serverPort);
     }
