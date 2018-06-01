@@ -1,7 +1,7 @@
 package com.stouduo.mesh.registry;
 
+import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
-import com.stouduo.mesh.util.Endpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class BaseRegistry implements AutoCloseable {
     @Value("${agent.provider.serverCapacity:1}")
     protected String serverCapacity;
 
-    protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
+    protected static Map<String, List<RpcDTO.Endpoint>> providers = new ConcurrentHashMap<>();
 
     public String getServerCapacity() {
         return serverCapacity;

@@ -1,6 +1,6 @@
 package com.stouduo.mesh.server.netty.provider;
 
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcDTO.RpcRequest;
 import com.stouduo.mesh.server.invoke.ProviderInvokeHandler;
 import com.stouduo.mesh.server.netty.util.ContextHolder;
 import io.netty.channel.ChannelHandler;

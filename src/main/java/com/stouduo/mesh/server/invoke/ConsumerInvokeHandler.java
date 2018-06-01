@@ -1,7 +1,7 @@
 package com.stouduo.mesh.server.invoke;
 
 import com.stouduo.mesh.registry.IRegistry;
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcDTO.*;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
 import com.stouduo.mesh.server.AgentClient;
 import org.slf4j.Logger;
@@ -27,10 +27,9 @@ public class ConsumerInvokeHandler {
 
     public void invoke(RpcRequest request) {
         try {
-            request.setRemoteServer(iLbStrategy.lbStrategy(iRegistry.find(request.getParameterStr(serverParamName))));
+            agentClient.invoke(RpcRequest.newBuilder().mergeFrom(request).setRemoteServer(iLbStrategy.lbStrategy(iRegistry.find(request.getParametersOrThrow(serverParamName)))).build());
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            e.printStackTrace();
         }
-        agentClient.invoke(request);
     }
 }

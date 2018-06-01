@@ -1,7 +1,7 @@
 package com.stouduo.mesh.rpc.loadbalance.strategy.impl;
 
+import com.stouduo.mesh.dubbo.model.RpcDTO.Endpoint;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
-import com.stouduo.mesh.util.Endpoint;
 
 import java.util.List;
 

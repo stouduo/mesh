@@ -10,9 +10,9 @@ import com.coreos.jetcd.options.GetOption;
 import com.coreos.jetcd.options.PutOption;
 import com.coreos.jetcd.options.WatchOption;
 import com.coreos.jetcd.watch.WatchEvent;
+import com.stouduo.mesh.dubbo.model.RpcDTO.Endpoint;
 import com.stouduo.mesh.registry.BaseRegistry;
 import com.stouduo.mesh.registry.IRegistry;
-import com.stouduo.mesh.util.Endpoint;
 import com.stouduo.mesh.util.IpHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class EtcdRegistry extends BaseRegistry implements IRegistry {
     private Logger logger = LoggerFactory.getLogger(EtcdRegistry.class);
@@ -134,7 +133,7 @@ public class EtcdRegistry extends BaseRegistry implements IRegistry {
             List<Endpoint> endpoints = providers.getOrDefault(serviceKey, new ArrayList<>());
             String[] endpointStr = k.substring(splitIndex + 1, k.length()).split(":");
             int capacity = Integer.parseInt(v);
-            Endpoint endpoint = new Endpoint(endpointStr[0], Integer.valueOf(endpointStr[1]), capacity);
+            Endpoint endpoint = Endpoint.newBuilder().setHost(endpointStr[0]).setPort(Integer.valueOf(endpointStr[1])).setCapacity(capacity).build();
             while (capacity-- > 0) {
                 endpoints.add(endpoint);
             }

@@ -1,6 +1,8 @@
 package com.stouduo.mesh.dubbo;
 
-import com.stouduo.mesh.dubbo.model.RpcResponse;
+import com.alibaba.fastjson.JSON;
+import com.google.protobuf.ByteString;
+import com.stouduo.mesh.dubbo.model.RpcDTO.RpcResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -71,9 +73,6 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
         byte[] body = new byte[len - 2];
         byteBuf.readerIndex(byteBuf.readerIndex() + 2);
         byteBuf.readBytes(body);
-        RpcResponse response = new RpcResponse();
-        response.setRequestId(reqId);
-        response.setBody(body);
-        return response;
+        return RpcResponse.newBuilder().setRequestId(reqId).setBody(ByteString.copyFromUtf8(JSON.parseObject(body, String.class))).build();
     }
 }

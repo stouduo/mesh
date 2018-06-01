@@ -1,7 +1,7 @@
 package com.stouduo.mesh.server.netty.util;
 
 import com.stouduo.mesh.dubbo.model.RpcResponse;
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcRequest;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;

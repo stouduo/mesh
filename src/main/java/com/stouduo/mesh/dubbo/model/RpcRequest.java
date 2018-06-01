@@ -1,9 +1,7 @@
-package com.stouduo.mesh.rpc;
+package com.stouduo.mesh.dubbo.model;
 
 
 import com.stouduo.mesh.util.Endpoint;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -1,6 +1,6 @@
 package com.stouduo.mesh.server;
 
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcDTO.RpcRequest;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public abstract class AgentClient implements AutoCloseable {

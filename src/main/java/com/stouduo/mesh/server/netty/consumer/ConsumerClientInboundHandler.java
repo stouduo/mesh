@@ -1,6 +1,6 @@
 package com.stouduo.mesh.server.netty.consumer;
 
-import com.stouduo.mesh.dubbo.model.RpcResponse;
+import com.stouduo.mesh.dubbo.model.RpcDTO.*;
 import com.stouduo.mesh.server.netty.util.ContextHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,10 +15,11 @@ public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<Rp
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
         ChannelHandlerContext context = ContextHolder.getContext(msg.getRequestId());
+
         if (context != null) {
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-                    Unpooled.wrappedBuffer(((Integer) msg.getBody()).toString().getBytes()));
+                    Unpooled.wrappedBuffer(msg.getBody().toByteArray()));
             response.headers().set(CONTENT_TYPE, "application/json");
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());

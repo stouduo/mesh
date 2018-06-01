@@ -1,0 +1,23 @@
+syntax = "proto3";
+package stouduo;
+
+// [START java_declaration]
+option java_package = "com.stouduo.mesh.dubbo.model";
+option java_outer_classname = "RpcDTO";
+// [END java_declaration]
+
+// [START messages]
+message RpcRequest {
+    int64 id=1;
+    map<string,string> parameters=2;
+    Endpoint remoteServer=3;
+}
+message RpcResponse {
+    int64 requestId =1;
+    bytes body=2;
+}
+message Endpoint {
+    string host = 1;
+    int32 port= 2;
+    int32 capacity=3;
+}

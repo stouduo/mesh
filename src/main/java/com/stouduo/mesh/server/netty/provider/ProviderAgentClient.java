@@ -1,14 +1,10 @@
 package com.stouduo.mesh.server.netty.provider;
 
 import com.stouduo.mesh.dubbo.model.*;
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcDTO.RpcRequest;
 import com.stouduo.mesh.server.AgentClient;
-import com.stouduo.mesh.server.netty.util.ContextHolder;
 import com.stouduo.mesh.util.IpHelper;
-import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.pool.SimpleChannelPool;
-import io.netty.util.concurrent.FutureListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -27,10 +23,10 @@ public class ProviderAgentClient extends AgentClient {
     @Override
     public void invoke(RpcRequest rpcRequest) {
         try {
-            String interfaceName = rpcRequest.getParameterStr("interface");
-            String method = rpcRequest.getParameterStr("method");
-            String parameterTypesString = rpcRequest.getParameterStr("parameterTypesString");
-            String parameter = rpcRequest.getParameterStr("parameter");
+            String interfaceName = rpcRequest.getParametersOrThrow("interface");
+            String method = rpcRequest.getParametersOrThrow("method");
+            String parameterTypesString = rpcRequest.getParametersOrThrow("parameterTypesString");
+            String parameter = rpcRequest.getParametersOrThrow("parameter");
 
             RpcInvocation invocation = new RpcInvocation();
             invocation.setMethodName(method);
