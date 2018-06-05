@@ -2,8 +2,6 @@ package com.stouduo.mesh.server.netty.consumer;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.DefaultEventLoopGroup;
-import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
@@ -19,9 +17,8 @@ public class ConsumerServerChannelInitializer extends ChannelInitializer {
         channel.pipeline()
                 .addLast(new HttpRequestDecoder())
                 .addLast(new HttpObjectAggregator(65536))
-//                .addLast(new HttpContentCompressor())
+                .addLast(new HttpContentCompressor())
                 .addLast(new HttpResponseEncoder())
-//                .addLast(consumerServerInboundHandler);
                 .addLast(consumerServerInboundHandler);
     }
 }

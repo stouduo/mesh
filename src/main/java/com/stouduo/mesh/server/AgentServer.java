@@ -1,6 +1,7 @@
 package com.stouduo.mesh.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -24,17 +25,20 @@ public class AgentServer implements AutoCloseable, ApplicationRunner {
     private ChannelInitializer serverChannelInitializer;
 
     public AgentServer() {
-        bossGroup = new NioEventLoopGroup(8);
-        workerGroup = new NioEventLoopGroup(8);
+        bossGroup = new NioEventLoopGroup(4);
+        workerGroup = new NioEventLoopGroup(5);
     }
 
     public void start() {
         new ServerBootstrap()
                 .group(bossGroup, workerGroup)
-                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .channel(NioServerSocketChannel.class)
-//                .handler(new LoggingHandler(LogLevel.WARN))
                 .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.SO_BACKLOG, 1024)
+//                .childOption(ChannelOption.SO_RCVBUF, 256 * 1024)
+//                .option(ChannelOption.SO_RCVBUF, 256 * 1024)
+//                .childOption(ChannelOption.SO_SNDBUF, 256 * 1024)
                 .childHandler(serverChannelInitializer)
                 .bind(port);
     }

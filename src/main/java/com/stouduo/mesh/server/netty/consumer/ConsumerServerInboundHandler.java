@@ -1,63 +1,34 @@
 package com.stouduo.mesh.server.netty.consumer;
 
-import com.stouduo.mesh.rpc.RpcRequest;
+import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.server.invoke.ConsumerInvokeHandler;
 import com.stouduo.mesh.server.netty.util.ContextHolder;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.QueryStringDecoder;
-import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 @ChannelHandler.Sharable
 public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     @Autowired
     private ConsumerInvokeHandler consumerInvokeHandler;
-//    private static ExecutorService works = Executors.newFixedThreadPool(8);
+    private static ExecutorService executor = Executors.newFixedThreadPool(32);
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
         try {
-            HttpMethod method = request.method();
-            RpcRequest rpcRequest = new RpcRequest();
-            final Map<String, String> parmMap = new HashMap<>();
-            if (method.equals(HttpMethod.GET)) {// 是GET请求
-                QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
-                decoder.parameters().forEach((k, v) -> {
-                    parmMap.put(k, v.get(0));
-                });
-            } else if (method.equals(HttpMethod.POST)) { // 是POST请求
-                HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
-                List<InterfaceHttpData> parmList = decoder.getBodyHttpDatas();
-                for (InterfaceHttpData parm : parmList) {
-                    Attribute data = (Attribute) parm;
-                    parmMap.put(data.getName(), data.getValue());
-                }
-                decoder.destroy();
-            } else {
-                ;
-            }
-            if (parmMap.size() != 0) {
-                rpcRequest.setParameters(parmMap);
-                ContextHolder.putContext(rpcRequest.getId(), channelHandlerContext);
-                consumerInvokeHandler.invoke(rpcRequest);
-//                if (channelHandlerContext.executor().inEventLoop()) {
-//                    consumerInvokeHandler.invoke(rpcRequest);
-//                } else {
-//                    channelHandlerContext.executor().execute(() -> consumerInvokeHandler.invoke(rpcRequest));
-//                }
-//                works.submit(() -> consumerInvokeHandler.invoke(rpcRequest));
+            ByteBuf content = request.content();
+            if (content.isReadable()) {
+                RpcDTO data = new RpcDTO().setContent(content.retain());
+                ContextHolder.putContext(data.getSessionId(), channelHandlerContext);
+                executor.execute(() -> consumerInvokeHandler.invoke(data));
             }
         } catch (Exception e) {
             e.printStackTrace();

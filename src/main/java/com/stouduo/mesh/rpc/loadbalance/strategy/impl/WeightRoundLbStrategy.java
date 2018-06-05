@@ -6,7 +6,7 @@ public class WeightRoundLbStrategy extends WeightLbStrategy {
     @Override
     protected int getIndex(int endpointSize) {
 //        index %= endpointSize;
-//        logger.info(index + "");
+ //       logger.info(index + "");
 //        return index++;
         return index++ % endpointSize;
     }

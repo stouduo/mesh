@@ -1,7 +1,9 @@
 package com.stouduo.mesh.server;
 
+import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.rpc.RpcRequest;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -31,8 +33,9 @@ public abstract class AgentClient implements AutoCloseable {
         Bootstrap bootstrap = new Bootstrap().group(workerGroup)
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
+//                .option(ChannelOption.SO_RCVBUF, 256 * 1024)
+//                .option(ChannelOption.SO_SNDBUF, 256 * 1024)
+                .option(ChannelOption.TCP_NODELAY, true);
         poolMap = new AbstractChannelPoolMap<InetSocketAddress, SimpleChannelPool>() {
             @Override
             protected synchronized SimpleChannelPool newPool(InetSocketAddress key) {
@@ -53,7 +56,7 @@ public abstract class AgentClient implements AutoCloseable {
         });
     }
 
-    public abstract void invoke(RpcRequest rpcRequest);
+    public abstract void invoke(RpcDTO data);
 
     @Override
     public void close() {

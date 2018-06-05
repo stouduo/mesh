@@ -2,62 +2,50 @@ package com.stouduo.mesh.rpc;
 
 
 import com.stouduo.mesh.util.Endpoint;
+import io.netty.buffer.ByteBuf;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RpcRequest implements Serializable {
-    private static AtomicLong atomicLong = new AtomicLong();
-    private long id;
-    private Map<String, String> parameters;
+    private ByteBuf content;
     private Endpoint remoteServer;
+    private int id;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     public RpcRequest(Endpoint remoteServer) {
-        this.id = atomicLong.getAndIncrement();
-        this.parameters = new HashMap<>();
         this.remoteServer = remoteServer;
+        this.id = idGenerator.getAndIncrement();
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public RpcRequest() {
         this(null);
     }
 
-    public RpcRequest setAttribute(String name, String value) {
-        this.parameters.put(name, value);
+    public ByteBuf getContent() {
+        return content;
+    }
+
+    public RpcRequest setContent(ByteBuf content) {
+        this.content = content;
         return this;
-    }
-
-
-    public RpcRequest setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-        return this;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
-
-    public String getParameterStr(String paramName) {
-        return (String) this.parameters.get(paramName);
-    }
-
-    public Object getParammeter(String name) {
-        return this.parameters.get(name);
     }
 
     public Endpoint getRemoteServer() {
         return remoteServer;
     }
 
-    public void setRemoteServer(Endpoint remoteServer) {
+    public RpcRequest setRemoteServer(Endpoint remoteServer) {
         this.remoteServer = remoteServer;
+        return this;
     }
 }

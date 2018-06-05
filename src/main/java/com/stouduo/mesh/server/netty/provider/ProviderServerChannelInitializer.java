@@ -1,11 +1,8 @@
 package com.stouduo.mesh.server.netty.provider;
 
-import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.server.netty.util.CustomByteToMessageCodec;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.DefaultEventLoopGroup;
-import io.netty.channel.EventLoopGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ProviderServerChannelInitializer extends ChannelInitializer {
@@ -16,7 +13,7 @@ public class ProviderServerChannelInitializer extends ChannelInitializer {
     @Override
     protected void initChannel(Channel channel) throws Exception {
         channel.pipeline()
-                .addLast(new CustomByteToMessageCodec(RpcRequest.class))
+                .addLast(new CustomByteToMessageCodec())
                 .addLast(providerServerInboundHandler);
     }
 }

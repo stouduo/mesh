@@ -39,7 +39,7 @@ public class AgentConfiguration {
     @Bean
     @ConditionalOnMissingBean(AgentClient.class)
     @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:16}") int maxChannels) {
+    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:32}") int maxChannels) {
         return new ConsumerAgentClient(maxChannels);
     }
 
@@ -80,6 +80,12 @@ public class AgentConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "wrr")
+    public ILbStrategy wrrLbStrategy() {
+        return new WrrLbStrategy();
+    }
+
+    @Bean
     @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "round")
     public ILbStrategy roundLbStrategy() {
         return new RoundLbStrategy();
@@ -89,12 +95,6 @@ public class AgentConfiguration {
     @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "weightRandom")
     public ILbStrategy weightRandomLbStrategy() {
         return new WeightRandomLbStrategy();
-    }
-
-    @Bean
-    @ConditionalOnProperty(value = "agent.loadbalance.strategy", havingValue = "wrr")
-    public ILbStrategy wrrStrategy() {
-        return new WrrLbStrategy();
     }
 
     @Bean

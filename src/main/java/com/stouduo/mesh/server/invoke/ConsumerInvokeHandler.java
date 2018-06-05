@@ -1,7 +1,7 @@
 package com.stouduo.mesh.server.invoke;
 
+import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.registry.IRegistry;
-import com.stouduo.mesh.rpc.RpcRequest;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
 import com.stouduo.mesh.server.AgentClient;
 import org.slf4j.Logger;
@@ -20,17 +20,14 @@ public class ConsumerInvokeHandler {
     private IRegistry iRegistry;
     @Autowired
     private AgentClient agentClient;
-    @Value("${agent.consumer.reqParam.serverName}")
-    private String serverParamName;
-    @Value("${agent.consumer.retry:3}")
-    private long retry;
+    @Value("${agent.provider.serviceName}")
+    private String serviceName;
 
-    public void invoke(RpcRequest request) {
+    public void invoke(RpcDTO data) {
         try {
-            request.setRemoteServer(iLbStrategy.lbStrategy(iRegistry.find(request.getParameterStr(serverParamName))));
+            agentClient.invoke(data.setRemoteServer(iLbStrategy.lbStrategy(iRegistry.find(serviceName))));
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            e.printStackTrace();
         }
-        agentClient.invoke(request);
     }
 }

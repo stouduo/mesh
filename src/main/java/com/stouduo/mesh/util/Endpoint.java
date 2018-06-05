@@ -17,10 +17,18 @@ public class Endpoint implements Serializable {
         this.currentCapacity = currentCapacity;
     }
 
+    public Endpoint(String host, int port) {
+        this.host = host;
+        this.port = port;
+        this.capacity = 1;
+        this.currentCapacity = 0;
+    }
+
     public Endpoint(String host, int port, int capacity) {
         this.host = host;
         this.port = port;
         this.capacity = capacity;
+        this.currentCapacity = 0;
     }
 
     public String getHost() {
