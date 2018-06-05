@@ -19,7 +19,7 @@ public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<Rp
         if (context != null) {
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-                    Unpooled.wrappedBuffer(parseData(data)));
+                    Unpooled.wrappedBuffer(data.isError() ? "1".getBytes() : parseData(data)));
             response.headers().set(CONTENT_TYPE, "application/json");
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());
