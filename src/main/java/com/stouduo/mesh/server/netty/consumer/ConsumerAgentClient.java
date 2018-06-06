@@ -26,7 +26,7 @@ public class ConsumerAgentClient extends AgentClient {
         this.rateLimiter = RateLimiter.of("mesh", RateLimiterConfig.custom()
                 .timeoutDuration(Duration.ofSeconds(61))
                 .limitRefreshPeriod(Duration.ofSeconds(1))
-                .limitForPeriod(5000)
+                .limitForPeriod(200)
                 .build());
     }
 
