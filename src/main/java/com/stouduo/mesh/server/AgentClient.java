@@ -6,20 +6,22 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.pool.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.FutureListener;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AgentClient implements AutoCloseable {
     protected static Logger logger = LoggerFactory.getLogger(AgentClient.class);
@@ -27,7 +29,13 @@ public abstract class AgentClient implements AutoCloseable {
     protected ChannelPoolMap<InetSocketAddress, SimpleChannelPool> poolMap;
     @Autowired
     protected ChannelPoolHandler clientChannelPoolHandler;
-
+    @Value("${agent.biz.threadpool.coreSize:5}")
+    protected int coreSize;
+    @Value("${agent.biz.threadpool.maxSize:50}")
+    protected int maxSize;
+    @Value("${agent.biz.threadpool.queueCapacity:32}")
+    protected int queueCapacity;
+    protected ThreadPoolExecutor bizWorkers;
     protected int maxChannels;
 
     @PostConstruct
@@ -45,6 +53,7 @@ public abstract class AgentClient implements AutoCloseable {
                 return new FixedChannelPool(bootstrap.remoteAddress(key), clientChannelPoolHandler, maxChannels);
             }
         };
+        this.bizWorkers = new ThreadPoolExecutor(coreSize, maxSize, 5, TimeUnit.MINUTES, new LinkedBlockingQueue<>(queueCapacity), new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     public void asycSend(InetSocketAddress remoteAddress, final Object data) {

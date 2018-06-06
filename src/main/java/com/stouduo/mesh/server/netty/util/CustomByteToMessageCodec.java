@@ -16,7 +16,6 @@ public class CustomByteToMessageCodec extends ByteToMessageCodec<RpcDTO> {
     protected void encode(ChannelHandlerContext channelHandlerContext, RpcDTO data, ByteBuf byteBuf) throws Exception {
         try {
             ByteBuf content = data.getContent();
-            byteBuf.writeBoolean(data.isError());
             byteBuf.writeInt(content.readableBytes());
             byteBuf.writeLong(data.getSessionId());
             byteBuf.writeBytes(content);
@@ -30,10 +29,9 @@ public class CustomByteToMessageCodec extends ByteToMessageCodec<RpcDTO> {
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List list) throws Exception {
         byteBuf.markReaderIndex();
         int readable = byteBuf.readableBytes();
-        if (readable < 5) return;
-        boolean isError = byteBuf.readBoolean();
+        if (readable < 4) return;
         int len = byteBuf.readInt();
-        if (readable < len + 13) {
+        if (readable < len + 12) {
             byteBuf.resetReaderIndex();
             return;
         }
@@ -42,6 +40,6 @@ public class CustomByteToMessageCodec extends ByteToMessageCodec<RpcDTO> {
         byteBuf.readerIndex(readIndex + len);
         ByteBuf sendDirect = byteBuf.slice(readIndex, len);
         sendDirect.retain();
-        list.add(new RpcDTO().setError(isError).setSessionId(sessionId).setContent(sendDirect));
+        list.add(new RpcDTO().setSessionId(sessionId).setContent(sendDirect));
     }
 }

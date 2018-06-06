@@ -25,9 +25,8 @@ public class AgentServer implements AutoCloseable, ApplicationRunner {
     private ChannelInitializer serverChannelInitializer;
 
     public AgentServer() {
-        int workerCount = Runtime.getRuntime().availableProcessors();
-        bossGroup = new NioEventLoopGroup(workerCount);
-        workerGroup = new NioEventLoopGroup(workerCount);
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
     }
 
     public void start() {

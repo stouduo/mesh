@@ -21,14 +21,14 @@ public class ProviderAgentClient extends AgentClient {
     private InetSocketAddress inetSocketAddress;
 
     public ProviderAgentClient(int serverPort, int maxChannels) {
-        this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
+        this.workerGroup = new NioEventLoopGroup();
         this.maxChannels = maxChannels;
         this.inetSocketAddress = new InetSocketAddress(IpHelper.getHostIp(), serverPort);
     }
 
     @Override
     public void invoke(RpcDTO data) {
-        asycSend(inetSocketAddress, parseData(data));
+        bizWorkers.execute(() -> asycSend(inetSocketAddress, parseData(data)));
     }
 
 

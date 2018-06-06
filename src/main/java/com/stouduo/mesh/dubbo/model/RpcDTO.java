@@ -7,21 +7,11 @@ import io.netty.util.ReferenceCounted;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class RpcDTO {
+public class RpcDTO  {
     private static AtomicLong idGenerator = new AtomicLong(0);
     private long sessionId;
     private ByteBuf content;
     private Endpoint remoteServer;
-    private boolean error = false;
-
-    public boolean isError() {
-        return error;
-    }
-
-    public RpcDTO setError(boolean error) {
-        this.error = error;
-        return this;
-    }
 
     public RpcDTO() {
         this.sessionId = idGenerator.getAndIncrement();

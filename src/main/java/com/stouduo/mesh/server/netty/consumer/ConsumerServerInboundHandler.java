@@ -3,6 +3,8 @@ package com.stouduo.mesh.server.netty.consumer;
 import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.server.invoke.ConsumerInvokeHandler;
 import com.stouduo.mesh.server.netty.util.ContextHolder;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,15 +13,18 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Component
 @ChannelHandler.Sharable
 public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     @Autowired
     private ConsumerInvokeHandler consumerInvokeHandler;
-    private static ExecutorService executor = Executors.newFixedThreadPool(32);
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
@@ -28,7 +33,7 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
             if (content.isReadable()) {
                 RpcDTO data = new RpcDTO().setContent(content.retain());
                 ContextHolder.putContext(data.getSessionId(), channelHandlerContext);
-                executor.execute(() -> consumerInvokeHandler.invoke(data));
+                consumerInvokeHandler.invoke(data);
             }
         } catch (Exception e) {
             e.printStackTrace();

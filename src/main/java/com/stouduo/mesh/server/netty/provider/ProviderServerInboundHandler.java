@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 @Component
 @ChannelHandler.Sharable
 public class ProviderServerInboundHandler extends SimpleChannelInboundHandler<RpcDTO> {
-    private static ExecutorService executor = Executors.newFixedThreadPool(32);
+//    private static ExecutorService executor = Executors.newFixedThreadPool(32);
 
     @Autowired
     private ProviderInvokeHandler providerInvokeHandler;
@@ -22,7 +22,7 @@ public class ProviderServerInboundHandler extends SimpleChannelInboundHandler<Rp
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcDTO data) throws Exception {
         ContextHolder.putContext(data.getSessionId(), channelHandlerContext);
-        executor.execute(() -> providerInvokeHandler.invoke(data));
-
+//        executor.execute(() -> providerInvokeHandler.invoke(data));
+        providerInvokeHandler.invoke(data);
     }
 }

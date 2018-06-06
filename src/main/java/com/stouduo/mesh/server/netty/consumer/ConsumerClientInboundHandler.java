@@ -19,21 +19,27 @@ public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<Rp
         if (context != null) {
             FullHttpResponse response = new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-                    Unpooled.wrappedBuffer(data.isError() ? "1".getBytes() : parseData(data)));
-            response.headers().set(CONTENT_TYPE, "application/json");
-            response.headers().set(CONTENT_LENGTH,
-                    response.content().readableBytes());
-            response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+                    Unpooled.wrappedBuffer(parseData(data)));
+            response.headers().set(CONTENT_TYPE, "application/json")
+                    .set(CONTENT_LENGTH, response.content().readableBytes())
+                    .set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
             context.writeAndFlush(response);
             ContextHolder.remove(sessionId);
         }
     }
 
+    private static byte[] errorBytes = "stouduo".getBytes();
+
     private byte[] parseData(RpcDTO data) {
         ByteBuf content = data.getContent();
+        if (content.readableBytes() == errorBytes.length) {
+            content.release();
+            return errorBytes;
+        }
         byte[] body = new byte[content.readableBytes() - 2];
         content.skipBytes(2);
         content.readBytes(body);
+        content.release();
         return JSON.parseObject(body, String.class).toString().getBytes();
     }
 }
