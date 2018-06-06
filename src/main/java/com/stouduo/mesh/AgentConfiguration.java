@@ -6,7 +6,6 @@ import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.*;
 import com.stouduo.mesh.server.AgentClient;
 import com.stouduo.mesh.server.AgentServer;
-import com.stouduo.mesh.server.netty.consumer.ConsumerAgentClient;
 import com.stouduo.mesh.server.netty.consumer.ConsumerClientChannelPoolHandler;
 import com.stouduo.mesh.server.netty.consumer.ConsumerServerChannelInitializer;
 import com.stouduo.mesh.server.netty.provider.ProviderAgentClient;
@@ -31,17 +30,17 @@ public class AgentConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(AgentClient.class)
-    @ConditionalOnProperty(value = "type", havingValue = "provider")
+//    @ConditionalOnProperty(value = "type", havingValue = "provider")
     public AgentClient providerAgentClient(@Value("${dubbo.protocol.port:4321}") int port, @Value("${agent.client.pool.maxChannels:16}") int maxChannels) {
         return new ProviderAgentClient(port, maxChannels);
     }
 
-    @Bean
-    @ConditionalOnMissingBean(AgentClient.class)
-    @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:32}") int maxChannels) {
-        return new ConsumerAgentClient(maxChannels);
-    }
+//    @Bean
+//    @ConditionalOnMissingBean(AgentClient.class)
+//    @ConditionalOnProperty(value = "type", havingValue = "consumer")
+//    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:32}") int maxChannels) {
+//        return new ConsumerAgentClient(maxChannels);
+//    }
 
     @Bean
     @ConditionalOnProperty(value = "type", havingValue = "provider")

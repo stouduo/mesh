@@ -10,6 +10,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,14 +27,15 @@ public class ConsumerServerInboundHandler extends SimpleChannelInboundHandler<Fu
     @Autowired
     private ConsumerInvokeHandler consumerInvokeHandler;
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
         try {
             ByteBuf content = request.content();
             if (content.isReadable()) {
-                RpcDTO data = new RpcDTO().setContent(content.retain());
-                ContextHolder.putContext(data.getSessionId(), channelHandlerContext);
-                consumerInvokeHandler.invoke(data);
+                byte[] bytes = new byte[content.readableBytes()];
+                content.readBytes(bytes);
+                consumerInvokeHandler.invoke(channelHandlerContext, new String(bytes));
             }
         } catch (Exception e) {
             e.printStackTrace();
