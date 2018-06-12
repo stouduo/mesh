@@ -6,11 +6,21 @@ public class Endpoint {
     private final String host;
     private final int port;
     private final int capacity;
+    private int currentCapacity;
+
+    public int getCurrentCapacity() {
+        return currentCapacity;
+    }
+
+    public void setCurrentCapacity(int currentCapacity) {
+        this.currentCapacity = currentCapacity;
+    }
 
     public Endpoint(String host, int port, int capacity) {
         this.host = host;
         this.port = port;
         this.capacity = capacity;
+        this.currentCapacity = 0;
     }
 
     public String getHost() {

@@ -31,8 +31,6 @@ public class ConsumerInvokeHandler implements InvokeHandler {
     private AgentRpcClient agentRpcClient;
     @Value("${agent.consumer.reqParam.serverName}")
     private String serverParamName;
-    @Value("${agent.consumer.retry:3}")
-    private long retry;
 
     @Override
     public Mono invoke(ServerRequest request) {
@@ -40,33 +38,13 @@ public class ConsumerInvokeHandler implements InvokeHandler {
             try {
                 Map<String, String> params = map.toSingleValueMap();
                 final Endpoint endpoint = iLbStrategy.lbStrategy(iRegistry.find(params.get(serverParamName)));
-                return doInvoke(endpoint, map).retry(retry, (e) -> e instanceof ConnectTimeoutException).onErrorResume(ConnectException.class, o -> {
-                    try {
-                        if (((ConnectException) o).getMessage().contains("Connection refused")) {
-                            if (endpoint != null) {
-                                iRegistry.serverDown(endpoint);
-                                Thread.sleep(1);
-                                Endpoint recallEndPoint = iLbStrategy.lbStrategy(iRegistry.find(params.get(serverParamName)));
-                                if (endpoint.equals(recallEndPoint)) return Mono.just("抱歉，已没有可用的服务！");
-                                return doInvoke(recallEndPoint, map);
-                            }
-                        }
-                    } catch (Exception e) {
-                        logger.error(e.getMessage());
-                    }
-                    return Mono.empty();
-                });
+                String remoteUrl = endpoint.getHost() + ":" + endpoint.getPort();
+                logger.debug(">>>>>调用服务地址为：" + remoteUrl);
+                return agentRpcClient.invoke(new RpcRequest(remoteUrl).setMultiParameters(map));
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
             return Mono.empty();
         });
     }
-
-    private Mono doInvoke(Endpoint endpoint, MultiValueMap<String, String> map) throws Exception {
-        String remoteUrl = endpoint.getHost() + ":" + endpoint.getPort();
-        logger.debug(">>>>>调用服务地址为：" + remoteUrl);
-        return agentRpcClient.invoke(new RpcRequest(remoteUrl).setMultiParameters(map));
-    }
-
 }
