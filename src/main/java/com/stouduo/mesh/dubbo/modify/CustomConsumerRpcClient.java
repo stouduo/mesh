@@ -49,8 +49,6 @@ public class CustomConsumerRpcClient implements ConsumerRpcClient {
         request.setTwoWay(true);
         request.setData(invocation);
 
-        logger.debug("requestId=" + request.getId());
-
         channelPoolManager.acquireFuture().addListener((FutureListener<Channel>) f -> {
             if (f.isSuccess()) {
                 Channel channel = f.getNow();

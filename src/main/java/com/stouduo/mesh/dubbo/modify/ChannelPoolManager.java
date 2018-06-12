@@ -2,6 +2,7 @@ package com.stouduo.mesh.dubbo.modify;
 
 import com.stouduo.mesh.util.IpHelper;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -25,7 +26,7 @@ public class ChannelPoolManager {
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT);
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         try {
             channelPool = new FixedChannelPool(bs.remoteAddress(InetSocketAddress.createUnresolved(IpHelper.getHostIp(), port)), new CustomChannelPoolHandler(), maxChannels);
         } catch (Exception e) {
