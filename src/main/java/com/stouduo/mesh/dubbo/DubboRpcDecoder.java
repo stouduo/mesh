@@ -1,6 +1,7 @@
 package com.stouduo.mesh.dubbo;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.JsonDeserializer;
 import com.stouduo.mesh.dubbo.model.JsonUtils;
 import com.stouduo.mesh.dubbo.model.RpcDTO;
 import io.netty.buffer.ByteBuf;
@@ -32,14 +33,15 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
             return;
         }
         int readIndex = byteBuf.readerIndex();
-        byteBuf.readerIndex(readIndex + len);
         if (status == 0x64) {
-            list.add(new RpcDTO().setSessionId(sessionId).setContent(Unpooled.wrappedBuffer("stouduo".getBytes())));
+            byteBuf.readerIndex(readIndex + len);
+            list.add(new RpcDTO().setSessionId(sessionId).setContent("stouduo"));
             return;
         }
-        ByteBuf sendDirect = byteBuf.slice(readIndex, len);
-        sendDirect.retain();
-        list.add(new RpcDTO().setSessionId(sessionId).setContent(sendDirect));
+        byte[] content = new byte[byteBuf.readableBytes() - 2];
+        byteBuf.skipBytes(1);
+        byteBuf.readBytes(content);
+        list.add(new RpcDTO().setSessionId(sessionId).setContent(JSON.parseObject(content, String.class)));
     }
 
 }

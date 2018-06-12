@@ -5,16 +5,11 @@ import com.stouduo.mesh.registry.impl.EtcdRegistry;
 import com.stouduo.mesh.rpc.loadbalance.strategy.ILbStrategy;
 import com.stouduo.mesh.rpc.loadbalance.strategy.impl.*;
 import com.stouduo.mesh.server.AgentClient;
-import com.stouduo.mesh.server.AgentServer;
-import com.stouduo.mesh.server.netty.consumer.ConsumerClientChannelPoolHandler;
-import com.stouduo.mesh.server.netty.consumer.ConsumerServerChannelInitializer;
-import com.stouduo.mesh.server.netty.provider.ProviderAgentClient;
-import com.stouduo.mesh.server.netty.provider.ProviderClientChannelPoolHandler;
-import com.stouduo.mesh.server.netty.provider.ProviderServerChannelInitializer;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.pool.ChannelPoolHandler;
+import com.stouduo.mesh.server.ProviderAgentClient;
+import com.stouduo.mesh.server.invoke.ConsumerInvokeHandler;
+import com.stouduo.mesh.server.invoke.Invoker;
+import com.stouduo.mesh.server.invoke.ProviderInvokeHandler;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -23,9 +18,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AgentConfiguration {
 
+//    @Bean
+//    public ApplicationRunner serverStart() {
+//        return new AgentServer();
+//    }
+
     @Bean
-    public ApplicationRunner serverStart() {
-        return new AgentServer();
+    @ConditionalOnProperty(value = "type", havingValue = "provider")
+    public Invoker providerInvoker() {
+        return new ProviderInvokeHandler();
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "type", havingValue = "consumer")
+    public Invoker consumerInvoker() {
+        return new ConsumerInvokeHandler();
     }
 
     @Bean
@@ -42,29 +49,29 @@ public class AgentConfiguration {
 //        return new ConsumerAgentClient(maxChannels);
 //    }
 
-    @Bean
-    @ConditionalOnProperty(value = "type", havingValue = "provider")
-    public ChannelInitializer providerServerChannelInitializer() {
-        return new ProviderServerChannelInitializer();
-    }
+//    @Bean
+//    @ConditionalOnProperty(value = "type", havingValue = "provider")
+//    public ChannelInitializer providerServerChannelInitializer() {
+//        return new ProviderServerChannelInitializer();
+//    }
 
-    @Bean
-    @ConditionalOnProperty(value = "type", havingValue = "provider")
-    public ChannelPoolHandler providerClientChannelPoolHandler() {
-        return new ProviderClientChannelPoolHandler();
-    }
+//    @Bean
+//    @ConditionalOnProperty(value = "type", havingValue = "provider")
+//    public ChannelPoolHandler providerClientChannelPoolHandler() {
+//        return new ProviderClientChannelPoolHandler();
+//    }
 
-    @Bean
-    @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public ChannelInitializer consumerServerChannelInitializer() {
-        return new ConsumerServerChannelInitializer();
-    }
-
-    @Bean
-    @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public ChannelPoolHandler consumerClientChannelPoolHandler() {
-        return new ConsumerClientChannelPoolHandler();
-    }
+//    @Bean
+//    @ConditionalOnProperty(value = "type", havingValue = "consumer")
+//    public ChannelInitializer consumerServerChannelInitializer() {
+//        return new ConsumerServerChannelInitializer();
+//    }
+//
+//    @Bean
+//    @ConditionalOnProperty(value = "type", havingValue = "consumer")
+//    public ChannelPoolHandler consumerClientChannelPoolHandler() {
+//        return new ConsumerClientChannelPoolHandler();
+//    }
 
     @Bean
     @ConditionalOnMissingBean(IRegistry.class)

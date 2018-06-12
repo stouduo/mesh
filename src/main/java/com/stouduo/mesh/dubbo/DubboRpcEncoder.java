@@ -1,20 +1,9 @@
 package com.stouduo.mesh.dubbo;
 
-import com.stouduo.mesh.dubbo.model.JsonUtils;
 import com.stouduo.mesh.dubbo.model.Request;
-import com.stouduo.mesh.dubbo.model.RpcDTO;
-import com.stouduo.mesh.dubbo.model.RpcInvocation;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.eclipse.jetty.util.MultiMap;
-import org.eclipse.jetty.util.UrlEncoded;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.Map;
 
 public class DubboRpcEncoder extends MessageToByteEncoder<Request> {
     // header length.
