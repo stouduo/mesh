@@ -16,19 +16,19 @@ public class BaseRegistry implements AutoCloseable {
     @Value("${etcd.url:http://localhost:2379}")
     protected String serverUrl;
 
-    @Value("${type:default}")
+    @Value("${type:consumer}")
     protected String serverType;
 
     @Value("${server.port:30000}")
     protected String serverPort;
 
-    @Value("${agent.provider.serverName:com.stouduo.agentmesh}")
+    @Value("${agent.provider.serverName:com.alibaba.dubbo.performance.demo.provider.IHelloService}")
     protected String serverName;
 
     @Value("${agent.provider.serverCapacity:1}")
     protected String serverCapacity;
 
-    protected static Map<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
+    protected static ConcurrentHashMap<String, List<Endpoint>> providers = new ConcurrentHashMap<>();
 
     public String getServerCapacity() {
         return serverCapacity;

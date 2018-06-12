@@ -1,15 +1,13 @@
 package com.stouduo.mesh.rpc.loadbalance.strategy.impl;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class WeightRoundLbStrategy extends WeightLbStrategy {
-    private static AtomicInteger index = new AtomicInteger(0);
+    private int index = 0;
 
     @Override
     protected int getIndex(int endpointSize) {
-        if (index.get() >= endpointSize) {
-            index.compareAndSet(index.get(), 0);
-        }
-        return index.getAndIncrement() % endpointSize;
+//        index %= endpointSize;
+ //       logger.info(index + "");
+//        return index++;
+        return index++ % endpointSize;
     }
 }

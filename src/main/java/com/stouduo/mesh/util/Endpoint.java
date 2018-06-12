@@ -1,16 +1,34 @@
 package com.stouduo.mesh.util;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Endpoint {
+public class Endpoint implements Serializable {
     private final String host;
     private final int port;
     private final int capacity;
+    private int currentCapacity;
+
+    public int getCurrentCapacity() {
+        return currentCapacity;
+    }
+
+    public void setCurrentCapacity(int currentCapacity) {
+        this.currentCapacity = currentCapacity;
+    }
+
+    public Endpoint(String host, int port) {
+        this.host = host;
+        this.port = port;
+        this.capacity = 1;
+        this.currentCapacity = 0;
+    }
 
     public Endpoint(String host, int port, int capacity) {
         this.host = host;
         this.port = port;
         this.capacity = capacity;
+        this.currentCapacity = 0;
     }
 
     public String getHost() {
@@ -23,11 +41,7 @@ public class Endpoint {
 
     @Override
     public String toString() {
-        return "Endpoint{" +
-                "host='" + host + '\'' +
-                ", port=" + port +
-                ", capacity=" + capacity +
-                '}';
+        return host + ":" + port + "-" + capacity;
     }
 
     @Override
