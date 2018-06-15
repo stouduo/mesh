@@ -25,11 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AgentClient implements AutoCloseable {
     protected static Logger logger = LoggerFactory.getLogger(AgentClient.class);
-    @Autowired()
-    @Qualifier("ioWorker")
+//    @Autowired()
+//    @Qualifier("cworker")
     protected EventLoopGroup workerGroup;
     protected ChannelPoolMap<InetSocketAddress, SimpleChannelPool> poolMap;
-    @Autowired
+//    @Autowired
     protected ChannelPoolHandler clientChannelPoolHandler;
 //    @Value("${agent.biz.threadpool.coreSize:5}")
 //    protected int coreSize;

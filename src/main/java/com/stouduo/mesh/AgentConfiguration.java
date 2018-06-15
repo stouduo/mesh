@@ -16,7 +16,6 @@ import com.stouduo.mesh.server.netty.provider.ProviderAgentClient;
 import com.stouduo.mesh.server.netty.provider.ProviderClientChannelPoolHandler;
 import com.stouduo.mesh.server.netty.provider.ProviderServerChannelInitializer;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -35,14 +34,12 @@ public class AgentConfiguration {
         return System.getProperty("os.name").contains("Windows") ? new NioEventLoopGroup(8) : new EpollEventLoopGroup(8);
     }
 
-    @Bean("bizWorker")
-    public EventLoopGroup bizExecutors() {
-        return new DefaultEventLoopGroup();
+    @Bean("cworker")
+    public EventLoopGroup cworkerExecutors() {
+        return System.getProperty("os.name").contains("Windows") ? new NioEventLoopGroup(8) : new EpollEventLoopGroup(8);
     }
-
-
-    @Bean("ioWorker")
-    public EventLoopGroup workerExecutors() {
+    @Bean("sworker")
+    public EventLoopGroup sworkerExecutors() {
         return System.getProperty("os.name").contains("Windows") ? new NioEventLoopGroup(8) : new EpollEventLoopGroup(8);
     }
 
@@ -52,12 +49,6 @@ public class AgentConfiguration {
         return new AgentServer();
     }
 
-
-    @Bean
-    @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public Invoker consumerInvokeHandler() {
-        return new ConsumerInvokeHandler();
-    }
 
     @Bean
     @ConditionalOnProperty(value = "type", havingValue = "provider")
@@ -73,13 +64,13 @@ public class AgentConfiguration {
             , @Value("${agent.client.ratelimiter:1000}") int rateLimiter) {
         return new ProviderAgentClient(port, maxChannels, rateLimiter);
     }
-
-    @Bean
-    @ConditionalOnMissingBean(AgentClient.class)
-    @ConditionalOnProperty(value = "type", havingValue = "consumer")
-    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:32}") int maxChannels) {
-        return new ConsumerAgentClient(maxChannels);
-    }
+//
+//    @Bean
+//    @ConditionalOnMissingBean(AgentClient.class)
+//    @ConditionalOnProperty(value = "type", havingValue = "consumer")
+//    public AgentClient comsumerAgentClient(@Value("${agent.client.pool.maxChannels:32}") int maxChannels) {
+//        return new ConsumerAgentClient(maxChannels);
+//    }
 
     @Bean
     @ConditionalOnProperty(value = "type", havingValue = "provider")
@@ -109,6 +100,11 @@ public class AgentConfiguration {
     @ConditionalOnMissingBean(IRegistry.class)
     public IRegistry etcdRegistry() {
         return new EtcdRegistry();
+    }
+    @Bean
+    @ConditionalOnProperty(value = "type", havingValue = "consumer")
+    public Invoker consumerInvokeHandler() {
+        return new ConsumerInvokeHandler();
     }
 
     @Bean

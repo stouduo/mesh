@@ -16,9 +16,10 @@ public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<Rp
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcDTO data) throws Exception {
-        long sessionId = data.getSessionId();
-        ChannelHandlerContext context = ContextHolder.getContext(sessionId);
-        if (context != null) {
+        ctx.channel().eventLoop().execute(()->{
+            long sessionId = data.getSessionId();
+            ChannelHandlerContext context = ContextHolder.getContext(sessionId);
+            if (context != null) {
                 FullHttpResponse response = new DefaultFullHttpResponse(
                         HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
                         Unpooled.wrappedBuffer(parseData(data)));
@@ -27,7 +28,8 @@ public class ConsumerClientInboundHandler extends SimpleChannelInboundHandler<Rp
                         .set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                 context.writeAndFlush(response);
                 ContextHolder.remove(sessionId);
-        }
+            }
+        });
     }
 
     private static byte[] errorBytes = "stouduo".getBytes();

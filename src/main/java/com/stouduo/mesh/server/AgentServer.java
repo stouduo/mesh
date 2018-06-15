@@ -20,18 +20,18 @@ public class AgentServer implements AutoCloseable, ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(AgentServer.class);
     @Value("${server.port}")
     private int port;
-    //    @Autowired
-//    @Qualifier("boss")
-//    protected EventLoopGroup bossGroup;
     @Autowired
-    @Qualifier("ioWorker")
+    @Qualifier("boss")
+    protected EventLoopGroup bossGroup;
+    @Autowired
+    @Qualifier("sworker")
     protected EventLoopGroup workerGroup;
     @Autowired
     private ChannelInitializer serverChannelInitializer;
 
     public void start() {
         new ServerBootstrap()
-                .group(workerGroup)
+                .group(bossGroup, workerGroup)
                 .channel(System.getProperty("os.name").contains("Windows") ? NioServerSocketChannel.class : EpollServerSocketChannel.class)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
@@ -41,7 +41,7 @@ public class AgentServer implements AutoCloseable, ApplicationRunner {
     }
 
     public void close() {
-//        bossGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
     }
 

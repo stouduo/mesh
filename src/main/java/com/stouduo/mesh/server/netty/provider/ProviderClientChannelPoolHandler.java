@@ -3,11 +3,8 @@ package com.stouduo.mesh.server.netty.provider;
 import com.stouduo.mesh.dubbo.DubboRpcDecoder;
 import com.stouduo.mesh.dubbo.DubboRpcEncoder;
 import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.socket.SocketChannel;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
     @Override
@@ -28,11 +25,8 @@ public class ProviderClientChannelPoolHandler implements ChannelPoolHandler {
         channel.pipeline()
                 .addLast(new DubboRpcEncoder())
                 .addLast(new DubboRpcDecoder())
-                .addLast(bizWorker,providerClientInboundHandler);
+                .addLast(providerClientInboundHandler);
     }
 
     private ProviderClientInboundHandler providerClientInboundHandler = new ProviderClientInboundHandler();
-    @Autowired
-    @Qualifier("bizWorker")
-    private EventLoopGroup bizWorker;
 }

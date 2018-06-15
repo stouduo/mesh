@@ -1,12 +1,16 @@
 package com.stouduo.mesh.server.netty.util;
 
+import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.server.invoke.Invoker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
@@ -15,6 +19,9 @@ public class DisruptorHolder {
     private Disruptor<RpcEvent> disruptor;
     @Autowired
     private Invoker invoker;
+    @Autowired
+    @Qualifier("cworker")
+    private Executor executor;
 
     @PostConstruct
     private void init() {

@@ -7,6 +7,7 @@ import com.stouduo.mesh.dubbo.model.RpcInvocation;
 import com.stouduo.mesh.server.AgentClient;
 import com.stouduo.mesh.util.IpHelper;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.nio.NioEventLoopGroup;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 
@@ -22,10 +23,13 @@ public class ProviderAgentClient extends AgentClient {
     public ProviderAgentClient(int serverPort, int maxChannels, int rate) {
         this.maxChannels = maxChannels;
         this.inetSocketAddress = new InetSocketAddress(IpHelper.getHostIp(), serverPort);
+        this.clientChannelPoolHandler = new ProviderClientChannelPoolHandler();
+        this.workerGroup = new NioEventLoopGroup(8);
     }
 
     @Override
     public void invoke(RpcDTO data) {
+//        bizWorkers.execute(()-> asycSend(inetSocketAddress, parseData(data)));
         asycSend(inetSocketAddress, parseData(data));
     }
 
