@@ -20,6 +20,7 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
+        System.out.println("decoder");
         byteBuf.markReaderIndex();
         int readable = byteBuf.readableBytes();
         if (readable < HEADER_LENGTH) return;
@@ -34,12 +35,12 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
         int readIndex = byteBuf.readerIndex();
         byteBuf.readerIndex(readIndex + len);
         if (status == 0x64) {
-            list.add(new RpcDTO().setSessionId(sessionId).setContent(Unpooled.wrappedBuffer("stouduo".getBytes())));
+            list.add(Unpooled.wrappedBuffer("stouduo".getBytes()));
             return;
         }
         ByteBuf sendDirect = byteBuf.slice(readIndex, len);
         sendDirect.retain();
-        list.add(new RpcDTO().setSessionId(sessionId).setContent(sendDirect));
+        list.add(sendDirect);
     }
 
 }

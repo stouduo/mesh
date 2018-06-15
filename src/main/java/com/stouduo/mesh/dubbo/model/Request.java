@@ -1,6 +1,7 @@
 package com.stouduo.mesh.dubbo.model;
 
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Request {
@@ -17,7 +18,7 @@ public class Request {
 
     private Object mData;
 
-    public Request(){
+    public Request() {
         id = atomicLong.getAndIncrement();
     }
 
@@ -101,4 +102,19 @@ public class Request {
         mData = msg;
     }
 
+    @Override
+    public String toString() {
+        return "Request{" +
+                "id=" + id +
+                ", interfaceName='" + interfaceName + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", dubboVersion='" + dubboVersion + '\'' +
+                ", version='" + version + '\'' +
+                ", parameterTypesString='" + parameterTypesString + '\'' +
+                ", args=" + Arrays.toString(args) +
+                ", twoWay=" + twoWay +
+                ", event=" + event +
+                ", mData=" + mData +
+                '}';
+    }
 }

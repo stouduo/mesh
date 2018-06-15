@@ -28,6 +28,7 @@ public class DubboRpcEncoder extends MessageToByteEncoder<Request> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Request request, ByteBuf buffer) throws Exception {
+        System.out.println("encoder");
         buffer.writeShort(MAGIC);
         buffer.writeByte(FLAG_REQUEST | 6 | FLAG_TWOWAY);
         buffer.writerIndex(buffer.writerIndex() + 1);

@@ -3,7 +3,6 @@ package com.stouduo.mesh.server.netty.provider;
 import com.stouduo.mesh.dubbo.model.RpcDTO;
 import com.stouduo.mesh.server.invoke.Invoker;
 import com.stouduo.mesh.server.netty.util.ContextHolder;
-import com.stouduo.mesh.server.netty.util.DisruptorHolder;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
