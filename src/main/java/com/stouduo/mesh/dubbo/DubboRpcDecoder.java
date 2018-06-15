@@ -1,6 +1,7 @@
 package com.stouduo.mesh.dubbo;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.JsonDeserializer;
 import com.stouduo.mesh.dubbo.model.JsonUtils;
 import com.stouduo.mesh.dubbo.model.RpcDTO;
 import io.netty.buffer.ByteBuf;
@@ -26,21 +27,26 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
         if (readable < HEADER_LENGTH) return;
         byteBuf.skipBytes(3);
         byte status = byteBuf.readByte();
+        if (status == 0x64) {
+            list.add("stouduo");
+            return;
+        }
         long sessionId = byteBuf.readLong();
         int len = byteBuf.readInt();
+        System.out.println(readable + "---" + (len + HEADER_LENGTH));
         if (readable < len + HEADER_LENGTH) {
             byteBuf.resetReaderIndex();
             return;
         }
-        int readIndex = byteBuf.readerIndex();
-        byteBuf.readerIndex(readIndex + len);
-        if (status == 0x64) {
-            list.add(Unpooled.wrappedBuffer("stouduo".getBytes()));
-            return;
-        }
-        ByteBuf sendDirect = byteBuf.slice(readIndex, len);
-        sendDirect.retain();
-        list.add(sendDirect);
+//        int readIndex = byteBuf.readerIndex();
+//        byteBuf.readerIndex(readIndex + len);
+        byte[] data = new byte[len - 2];
+        byteBuf.skipBytes(2);
+        byteBuf.readBytes(data);
+        System.out.println(new String(data));
+//        ByteBuf sendDirect = byteBuf.slice(readIndex, len);
+//        sendDirect.retain();
+        list.add(JSON.parseObject(data, String.class));
     }
 
 }
