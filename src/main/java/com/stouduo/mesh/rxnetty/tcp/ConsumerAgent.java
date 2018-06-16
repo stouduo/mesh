@@ -20,10 +20,13 @@ public class ConsumerAgent {
         ConnectionRequest<ByteBuf, ByteBuf> connReq = client.createConnectionRequest();
         HttpServer.newServer(20000)
                 .enableWireLogging("consumer-agent-server", LogLevel.INFO)
-                .start((serverReq, serverResp) -> serverResp.setHeader(HttpHeaderNames.CONTENT_TYPE, "application/json")
+                .start((serverReq, serverResp) -> serverResp
+                        .setHeader(HttpHeaderNames.CONTENT_TYPE, "application/json")
                         .setStatus(HttpResponseStatus.OK)
-                        .writeAndFlushOnEach(connReq.flatMap(request ->
-                                request.writeAndFlushOnEach(serverReq.getContent()).cast(ByteBuf.class).mergeWith(request.getInput())
-                        ))).awaitShutdown();
+                        .writeAndFlushOnEach(connReq.flatMap(channel ->channel
+                                .writeAndFlushOnEach(serverReq.getContent())
+                                .cast(ByteBuf.class)
+                                .mergeWith(channel.getInput()))))
+                .awaitShutdown();
     }
 }

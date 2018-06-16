@@ -21,9 +21,9 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
-        System.out.println("decoder");
         byteBuf.markReaderIndex();
         int readable = byteBuf.readableBytes();
+        if (readable == 22) return;
         if (readable < HEADER_LENGTH) return;
         byteBuf.skipBytes(3);
         byte status = byteBuf.readByte();
@@ -33,7 +33,6 @@ public class DubboRpcDecoder extends ByteToMessageDecoder {
         }
         long sessionId = byteBuf.readLong();
         int len = byteBuf.readInt();
-        System.out.println(readable + "---" + (len + HEADER_LENGTH));
         if (readable < len + HEADER_LENGTH) {
             byteBuf.resetReaderIndex();
             return;

@@ -42,24 +42,24 @@ public final class ProxyClient {
         HttpClient.newClient(IpHelper.getHostIp(), 20000)
                 .enableWireLogging("proxy-client", LogLevel.DEBUG)
                 .createPost("/")
-                .writeStringContent(Observable.just("interface=com.al\n" +
-                        "ibaba.dubbo.perf\n" +
-                        "ormance.demo.pro\n" +
-                        "vider.IHelloServ\n" +
-                        "ice&method=hash&\n" +
-                        "parameterTypesSt\n" +
-                        "ring=Ljava%2Flan\n" +
-                        "      g%2FString%3B&pa\n" +
-                        "     rameter=6mcU5jG7\n" +
-                        "C42BtdX3eLMnLzga\n" +
-                        "DlOFgqKJRBa5GiE0\n" +
-                        "  jKs4ZXjpz9Qg5WLw\n" +
-                        " C4G6ncRGHR7j3MRB\n" +
-                        "sapPVg33a3xkYfKK\n" +
-                        "MOrGlk9ohdg9re6M\n" +
-                        "   W2HzXPZ5iX7zUHTU\n" +
-                        "KzNgs2wmHS9g6kMH\n" +
-                        "9MYp4i3GNoQNERKk\n" +
+                .writeStringContent(Observable.just("interface=com.al" +
+                        "ibaba.dubbo.perf" +
+                        "ormance.demo.pro" +
+                        "vider.IHelloServ" +
+                        "ice&method=hash&" +
+                        "parameterTypesSt" +
+                        "ring=Ljava%2Flan" +
+                        "g%2FString%3B&pa" +
+                        "rameter=6mcU5jG7" +
+                        "C42BtdX3eLMnLzga" +
+                        "DlOFgqKJRBa5GiE0" +
+                        "jKs4ZXjpz9Qg5WLw" +
+                        "C4G6ncRGHR7j3MRB" +
+                        "sapPVg33a3xkYfKK" +
+                        "MOrGlk9ohdg9re6M" +
+                        "W2HzXPZ5iX7zUHTU" +
+                        "KzNgs2wmHS9g6kMH" +
+                        "9MYp4i3GNoQNERKk" +
                         "M47NcBg6"))
                 .flatMap(resp -> resp.getContent()
                         .map(bb -> bb.toString(Charset.defaultCharset()))

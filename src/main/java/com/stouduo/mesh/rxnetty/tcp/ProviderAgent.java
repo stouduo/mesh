@@ -22,10 +22,10 @@ import java.util.Map;
 
 public class ProviderAgent {
     public static void main(String[] args) {
-        final TcpClient<Request, String> targetClient = TcpClient.newClient(IpHelper.getHostIp(), 20890)
+        final TcpClient<Request, String> targetClient = TcpClient.newClient(IpHelper.getHostIp(), 20880)
                 .channelOption(ChannelOption.TCP_NODELAY, true)
                 .channelOption(ChannelOption.SO_KEEPALIVE, true)
-                .pipelineConfigurator(pipeline -> pipeline.addLast(new DubboRpcEncoder()).addLast(new DubboRpcDecoder()));
+                .pipelineConfigurator(pipeline -> pipeline.addLast(new DubboRpcDecoder()).addLast(new DubboRpcEncoder()));
         /*Create a new connection request, each subscription to which creates a new connection.*/
         ConnectionRequest<Request, String> connReq = targetClient.createConnectionRequest();
         TcpServer.newServer(20001)
